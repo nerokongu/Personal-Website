@@ -1,18 +1,3 @@
-# =========================
-# 3D model & textures (rất nặng)
-# =========================
-assets/source/
-assets/textures/
-
-# =========================
-# Media dùng Google Drive
-# =========================
-assets/bg.mp4
-assets/music 01.mp3
-
-# =========================
-# System / IDE
-# =========================
-node_modules/
-.DS_Store
-Thumbs.db
+# heavy media
+Nerokongu/assets/textures/
+Nerokongu/assets/source/

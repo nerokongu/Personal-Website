@@ -316,3 +316,40 @@ window.addEventListener("mouseup", () => {
 
   currentEngine = null;
 });
+
+const music = document.getElementById("music");
+const playBtn = document.getElementById("play-btn");
+
+// format 01:23
+function formatTime(time) {
+  if (isNaN(time)) return "0:00";
+  const min = Math.floor(time / 60);
+  const sec = Math.floor(time % 60).toString().padStart(2, "0");
+  return `${min}:${sec}`;
+}
+
+/* ===== LOAD METADATA ===== */
+music.addEventListener("loadedmetadata", () => {
+  durationEl.textContent = formatTime(music.duration);
+  progress.max = Math.floor(music.duration);
+});
+
+/* ===== PLAY / PAUSE ===== */
+playBtn.addEventListener("click", () => {
+  if (music.paused) {
+    music.play();
+  } else {
+    music.pause();
+  }
+});
+
+/* ===== UPDATE TIME ===== */
+music.addEventListener("timeupdate", () => {
+  currentTimeEl.textContent = formatTime(music.currentTime);
+  progress.value = Math.floor(music.currentTime);
+});
+
+/* ===== SEEK ===== */
+progress.addEventListener("input", () => {
+  music.currentTime = progress.value;
+});

@@ -4,11 +4,6 @@
   <meta charset="UTF-8">
   <title>NeroKoNgu</title>
   <link rel="stylesheet" href="css/style.css">
-  <link rel="preload"     
-      href="assets/source/bmw_g82_m4_with_adro_kit_2022__www_vecarz_com.glb"
-      as="fetch"
-      type="model/gltf-binary"
-      crossorigin="anonymous">
   <script type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
@@ -36,7 +31,7 @@
       <div class="model-wrap">
         <model-viewer
           id="bmw-menu"
-          src="assets/source/bmw_g82_m4_with_adro_kit_2022__www_vecarz_com.glb"
+          src="assets/models/bmw.glb"
           camera-controls
           auto-rotate
           rotation-per-second="25deg"
@@ -90,7 +85,9 @@
 </div>
 
 <!-- Nhạc nền -->
-<audio id="bg-music" src="assets/music 01.mp3"></audio>
+<audio id="music" preload="metadata">
+  <source src="assets/music 01.mp3" type="audio/mpeg">
+</audio>
 
 <!-- ÂM THANH ĐỘNG CƠ -->
 <audio id="engine-sound" preload="auto"></audio>
@@ -114,9 +111,10 @@
 </div>
 
   <!-- Video nền -->
-  <video autoplay loop playsinline id="bg-video" muted>
+  <video id="bg-video" autoplay muted loop playsinline>
     <source src="assets/bg.mp4" type="video/mp4">
   </video>
+
   <div class="overlay"></div>
 
   <!-- Nội dung chính -->
@@ -134,6 +132,6 @@
   </div>
 </div>
 
-  <script src="js/main.js"></script>
+  <script type="module" src="js/main.js"></script>
 </body>
 </html>
