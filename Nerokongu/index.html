@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <title>NeroKoNgu</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="preload"     
+      href="assets/source/bmw_g82_m4_with_adro_kit_2022__www_vecarz_com.glb"
+      as="fetch"
+      type="model/gltf-binary"
+      crossorigin="anonymous">
+  <script type="module"
+    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
+  </script>
+</head>
+
+
+<body>
+
+<canvas id="dust-canvas"></canvas>
+
+<!-- Curtain Menu -->
+<div id="menu-toggle">
+  <span></span>
+  <span></span>
+  <span></span>
+</div>
+
+<div id="curtain-menu">
+
+  <div class="menu-layout">
+
+    <!-- BÊN TRÁI: 3D  -->
+    <div class="menu-left">
+
+      <div class="model-wrap">
+        <model-viewer
+          id="bmw-menu"
+          src="assets/source/bmw_g82_m4_with_adro_kit_2022__www_vecarz_com.glb"
+          camera-controls
+          auto-rotate
+          rotation-per-second="25deg"
+          disable-zoom
+          interaction-prompt="none"
+          exposure="1.1">
+        </model-viewer>
+      </div>
+
+    </div>
+
+    
+    <!-- DIVIDER + GAS -->
+    <div class="menu-divider">
+      <button id="rev-btn" class="rev-btn">
+        <img src="assets/BMW.svg" alt="BMW">
+      </button>
+    </div>
+
+    <!-- BÊN PHẢI: DANH MỤC -->
+    <div class="menu-right">
+      <h2>Nero's House</h2>
+      <div class="menu-items">
+        <button>🎮 Games</button>
+        <button>🎵 Music</button>
+        <button>🎬 Movie</button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<div class="volume-control">
+  <div id="volume-icon" class="volume-icon">
+    <svg viewBox="0 0 24 24" class="icon">
+      <path class="speaker" d="M3 9v6h4l5 4V5L7 9H3z"/>
+      <path class="wave" d="M16 8a5 5 0 010 8"/>
+      <path class="wave" d="M19 5a9 9 0 010 14"/>
+      <line class="mute-line" x1="4" y1="4" x2="20" y2="20"/>
+    </svg>
+  </div>
+  <input type="range" id="volume-slider" min="0" max="1" step="0.01">
+</div>
+
+<div id="start-overlay">
+  <div class="start-content">
+    <h2>Click to enter</h2>
+    <p>Welcome to Nerohouse</p>
+  </div>
+</div>
+
+<!-- Nhạc nền -->
+<audio id="bg-music" src="assets/music 01.mp3"></audio>
+
+<!-- ÂM THANH ĐỘNG CƠ -->
+<audio id="engine-sound" preload="auto"></audio>
+
+<div class="audio-player">
+  <img src="assets/IM.jpg" class="cover">
+
+  <div class="audio-info">
+    <div class="title">Track Future</div>
+
+    <div class="time">
+      <span id="current">0:00</span>
+      <div class="progress" id="progress">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+      <span id="duration">0:00</span>
+    </div>
+  </div>
+
+  <button id="play-btn">▶</button>
+</div>
+
+  <!-- Video nền -->
+  <video autoplay loop playsinline id="bg-video" muted>
+    <source src="assets/bg.mp4" type="video/mp4">
+  </video>
+  <div class="overlay"></div>
+
+  <!-- Nội dung chính -->
+  <div class="center-wrapper">
+  <div class="profile-card">
+    <img src="assets/avatar.jpg" class="avatar">
+    <h1>Nerokongu</h1>
+    <p class="bio">Gym • Motivation • BMW</p>
+
+    <div class="links">
+      <a href="https://www.facebook.com/NeroKoNgu/"target="_blank" rel="noopener noreferrer">Facebook</a>
+      <a href="#">GitHub</a>
+      <a href="#">YouTube</a>
+    </div>
+  </div>
+</div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

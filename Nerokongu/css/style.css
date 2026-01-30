@@ -1,0 +1,706 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  height: 100%;
+  font-family: Arial, sans-serif;
+  color: white;
+  overflow: hidden;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Video nền */
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+
+  z-index: -2;
+  pointer-events: none;
+}
+
+/* Overlay tối */
+.overlay {
+  position: fixed;
+  inset: 0;
+
+  background: rgba(0,0,0,0.35);
+
+  z-index: -1;
+  pointer-events: none;
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  /* backdrop-filter: blur(2px); */
+}
+
+.avatar {
+  width: 110px;
+  height: 110px;
+  border-radius: 50%;
+  border: 2px solid white;
+  margin-bottom: 16px;
+}
+
+h1 {
+  font-size: 36px;
+  margin-bottom: 6px;
+}
+
+.bio {
+  font-size: 14px;
+  opacity: 0.85;
+  margin-bottom: 20px;
+}
+/* Link */
+.links a {
+  display: block;
+  margin: 10px 0;
+  padding: 12px;
+
+  border-radius: 10px;
+  border: 1px solid rgba(255,255,255,0.4);
+
+  color: white;
+  text-decoration: none;
+  transition: 0.25s;
+}
+
+.links a:hover {
+  background: white;
+  color: black;
+}
+
+
+.music-control {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(10px);
+
+  cursor: pointer;
+  font-size: 18px;
+  user-select: none;
+
+  z-index: 20;
+}
+
+.music-control button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+.music-control input[type="range"] {
+  width: 80px;
+}
+
+.blur-wrapper {
+  width: 420px;
+  max-width: 90vw;
+
+  padding: 40px 30px;
+  border-radius: 24px;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 20px 60px rgba(0, 0, 0, 0.6);
+}
+
+.center-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-card {
+  width: 360px;
+  padding: 30px 24px;
+  text-align: center;
+
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.profile-card {
+  animation: fadeInUp 3s ease forwards;
+  opacity: 0;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.audio-player {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(10px);
+
+  color: white;
+  z-index: 30;
+}
+
+.cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.audio-info {
+  width: 180px;
+}
+
+.title {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.progress {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+  position: relative;
+  z-index: 40;
+  pointer-events: auto;
+}
+
+.progress:hover {
+  background: rgba(255,255,255,0.45);
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: white;
+}
+
+.audio-player button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: opacity 0.8s ease;
+}
+
+#start-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.start-content {
+  text-align: center;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.start-content h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.start-content p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
+
+.links a {
+  transition: 
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease;
+}
+
+.links a:hover {
+  transform: scale(1.04);
+}
+
+#dust-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1000; /* CAO HƠN overlay */
+  pointer-events: none;
+}
+
+.audio-player {
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.audio-player.idle {
+  opacity: 0.8;
+  filter: blur(2px);
+}
+
+.volume-control {
+  position: fixed;
+  top: 30px;
+  left: 30px;
+  z-index: 40;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+#volume-icon {
+  cursor: pointer;
+  font-size: 18px;
+}
+
+#volume-slider {
+  width: 0;
+  opacity: 0;
+  transition: width 0.3s ease, opacity 0.3s ease;
+}
+
+.volume-control:hover #volume-slider {
+  width: 90px;
+  opacity: 1;
+}
+
+.volume-icon {
+  width: 22px;
+  height: 22px;
+  cursor: pointer;
+}
+
+.volume-icon svg {
+  width: 100%;
+  height: 100%;
+  stroke: white;
+  fill: none;
+  stroke-width: 2;
+}
+
+.speaker {
+  fill: white;
+  stroke: none;
+}
+
+.wave {
+  stroke-linecap: round;
+  opacity: 1;
+  transition: opacity 0.3s ease;
+}
+
+.mute-line {
+  stroke: white;
+  stroke-width: 2.5;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.volume-icon.muted .wave {
+  opacity: 0;
+}
+
+.volume-icon.muted .mute-line {
+  opacity: 1;
+}
+
+#menu-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 32px;
+  height: 24px;
+  cursor: pointer;
+  z-index: 100;
+}
+
+#menu-toggle span {
+  display: block;
+  height: 3px;
+  width: 100%;
+  background: white;
+  margin: 5px 0;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+#curtain-menu {
+  position: fixed;
+  top: -50vh;
+  left: 0;
+  width: 100%;
+  height: 50vh;
+  background: rgba(10,10,10,0.96);
+  backdrop-filter: blur(12px);
+  z-index: 60;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  transition: top 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#curtain-menu.open {
+  top: 0;
+}
+
+#curtain-menu h2 {
+  color: white;
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.menu-items button {
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.4);
+  color: white;
+  padding: 12px 40px;
+  margin: 10px 0;
+  font-size: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.menu-items button:hover {
+  background: rgba(255,255,255,0.1);
+}
+
+.curtain-content {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  color: #fff;
+  text-align: center;
+  pointer-events: none;
+}
+
+.menu-items {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.menu-items button {
+  pointer-events: auto;
+
+  padding: 14px 28px;
+  font-size: 18px;
+  font-weight: 500;
+
+  background: rgba(255,255,255,0.08);
+  color: #fff;
+
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+
+#rope {
+  bottom: -105px;
+}
+
+
+/* ===== MENU 2 CỘT ===== */
+.menu-layout {
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+}
+
+/* BÊN TRÁI */
+.menu-left {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* BÊN PHẢI */
+.menu-right {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MODEL BMW */
+#bmw-menu {
+  width: 90%;
+  height: 90%;
+
+  max-width: 700px;
+  max-height: 480px;
+
+  transform: scale(1.2);
+}
+
+.menu-right h2 {
+  font-size: 32px;
+  margin-bottom: 30px;
+}
+
+.menu-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.menu-items button {
+  width: 220px;
+  font-size: 18px;
+}
+
+@media (max-width: 768px) {
+  .menu-layout {
+    flex-direction: column;
+  }
+
+  #bmw-menu {
+    width: 300px;
+    height: 220px;
+  }
+}
+
+#bmw-menu {
+  transform: translateX(120px) scale(1.25);
+}
+
+#bmw-menu {
+  transition: filter 0.12s linear;
+}
+
+/* ===== MODEL + GAS ===== */
+.model-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* MODEL */
+#bmw-menu {
+  width: 90%;
+  height: 90%;
+}
+
+/* NÚT GAS */
+.rev-btn {
+  position: absolute;
+  right: 40px;
+  bottom: 30px;
+
+  padding: 14px 26px;
+  font-size: 16px;
+  font-weight: 700;
+
+  color: white;
+  background: linear-gradient(135deg, #111, #333);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 999px;
+
+  cursor: pointer;
+  z-index: 5;
+
+  box-shadow: 0 0 20px rgba(255,255,255,0.25);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rev-btn:active {
+  transform: scale(0.94);
+  box-shadow: 0 0 35px rgba(255,255,255,0.5);
+}
+
+.menu-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.model-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#bmw-menu {
+  width: 90%;
+  height: 90%;
+
+  max-width: 700px;
+  max-height: 480px;
+
+  transform: scale(1.2);
+}
+
+/* nút GAS */
+.rev-btn {
+  position: absolute;
+  right: 20px;
+  bottom: 20px;
+
+  padding: 10px 22px;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  color: white;
+  background: rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 10px;
+
+  cursor: pointer;
+  z-index: 10;
+
+  backdrop-filter: blur(6px);
+  box-shadow: 0 0 18px rgba(255,80,80,0.4);
+}
+
+.rev-btn:active {
+  transform: scale(0.92);
+  box-shadow: 0 0 30px rgba(255,80,80,0.8);
+}
+
+/* ===== DIVIDER ===== */
+.menu-divider {
+  position: relative;
+  width: 1px;
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    rgba(255,255,255,0.4),
+    transparent
+  );
+
+  margin: 0 40px;
+}
+
+/* ===== BMW GAS BUTTON ===== */
+.rev-btn {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 72px;
+  height: 72px;
+
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.4);
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  z-index: 10;
+
+  box-shadow: 0 0 25px rgba(255,255,255,0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.rev-btn img {
+  width: 44px;
+  height: 44px;
+}
+
+.rev-btn:active {
+  transform: translate(-50%, -50%) scale(0.9);
+  box-shadow: 0 0 40px rgba(255,102,102,0.8);
+}
