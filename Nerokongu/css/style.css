@@ -704,3 +704,12 @@ h1 {
   transform: translate(-50%, -50%) scale(0.9);
   box-shadow: 0 0 40px rgba(255,102,102,0.8);
 }
+
+.audio-player button {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 18px;
+  cursor: pointer;
+}
+

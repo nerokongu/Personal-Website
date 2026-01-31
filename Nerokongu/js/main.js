@@ -1,10 +1,21 @@
-const audio = document.getElementById("bg-music");
+const audio = document.getElementById("music");
 const playBtn = document.getElementById("play-btn");
 const progressBar = document.getElementById("progress-bar");
 const currentTimeEl = document.getElementById("current");
 const durationEl = document.getElementById("duration");
 const progress = document.getElementById("progress");
+const tracks = [
+  { src: "assets/music 01.mp3", title: "Track 01" },
+  { src: "assets/music 02.mp3", title: "Track 02" },
+  { src: "assets/music 03.mp3", title: "Track 03" },
+  { src: "assets/music 04.mp3", title: "Track 04" }
+];
 
+let currentTrack = 0;
+
+const titleEl = document.getElementById("track-title");
+const prevBtn = document.getElementById("prev-btn");
+const nextBtn = document.getElementById("next-btn");
 
 // Play / Pause
 playBtn.onclick = async () => {
@@ -317,39 +328,35 @@ window.addEventListener("mouseup", () => {
   currentEngine = null;
 });
 
-const music = document.getElementById("music");
-const playBtn = document.getElementById("play-btn");
+function loadTrack(index, autoPlay = true) {
+  currentTrack = (index + tracks.length) % tracks.length;
 
-// format 01:23
-function formatTime(time) {
-  if (isNaN(time)) return "0:00";
-  const min = Math.floor(time / 60);
-  const sec = Math.floor(time % 60).toString().padStart(2, "0");
-  return `${min}:${sec}`;
+  audio.src = tracks[currentTrack].src;
+  titleEl.textContent = tracks[currentTrack].title;
+
+  audio.load();
+  progressBar.style.width = "0%";
+  currentTimeEl.textContent = "0:00";
+
+  if (autoPlay) {
+    audio.play();
+    playBtn.textContent = "⏸";
+  } else {
+    playBtn.textContent = "▶";
+  }
 }
 
-/* ===== LOAD METADATA ===== */
-music.addEventListener("loadedmetadata", () => {
-  durationEl.textContent = formatTime(music.duration);
-  progress.max = Math.floor(music.duration);
+prevBtn.addEventListener("click", () => {
+  loadTrack(currentTrack - 1, !audio.paused);
 });
 
-/* ===== PLAY / PAUSE ===== */
-playBtn.addEventListener("click", () => {
-  if (music.paused) {
-    music.play();
-  } else {
-    music.pause();
-  }
+nextBtn.addEventListener("click", () => {
+  loadTrack(currentTrack + 1, !audio.paused);
 });
 
-/* ===== UPDATE TIME ===== */
-music.addEventListener("timeupdate", () => {
-  currentTimeEl.textContent = formatTime(music.currentTime);
-  progress.value = Math.floor(music.currentTime);
+audio.addEventListener("ended", () => {
+  loadTrack(currentTrack + 1, true);
 });
 
-/* ===== SEEK ===== */
-progress.addEventListener("input", () => {
-  music.currentTime = progress.value;
-});
+loadTrack(0, false);
+
