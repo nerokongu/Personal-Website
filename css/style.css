@@ -751,3 +751,77 @@ h1 {
   font-size: 14px;
   opacity: 0.6;
 }
+/* ===============================
+   PLAY / PAUSE BUTTON – FINAL
+   =============================== */
+
+#audio-player button,
+.audio-player button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
+/* nút play riêng */
+#play-btn {
+  font-size: 0; /* tắt text gốc */
+  position: relative;
+}
+
+/* icon mặc định */
+#play-btn::before {
+  content: "▶";
+  font-size: 18px;
+  line-height: 1;
+
+  display: inline-block;
+
+  transform: scale(1);
+  opacity: 1;
+
+  transition:
+    transform 0.2s ease,
+    opacity 0.15s ease;
+}
+
+/* khi đang phát */
+#play-btn.pause::before {
+  content: "⏸";
+  transform: scale(1.1);
+  opacity: 1;
+}
+
+/* hiệu ứng bấm */
+#play-btn:active::before {
+  transform: scale(0.9);
+}
+
+.audio-player {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.audio-player button {
+  width: 32px;
+  height: 32px;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0px;   /* 👈 chỉnh ở đây (3–6px là đẹp) */
+}
+
+@keyframes playMorph {
+  to {
+    opacity: 1;
+  }
+}

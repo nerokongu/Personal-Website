@@ -384,12 +384,19 @@ function loadTrack(index, autoPlay = true) {
   audio.src = tracks[currentTrack].src;
   titleEl.textContent = tracks[currentTrack].title;
 
-  audio.load(); // BẮT BUỘC
+  audio.load();
 
   progressBar.style.width = "0%";
   currentTimeEl.textContent = "0:00";
-}
 
+  if (autoPlay) {
+    audioCtx.resume();
+    audio.volume = 0;
+    audio.play();
+    fadeVolume(1);
+    playBtn.textContent = "⏸";
+  }
+}
 prevBtn.addEventListener("click", () => {
   loadTrack(currentTrack - 1, !audio.paused);
 });
@@ -405,7 +412,13 @@ audio.addEventListener("ended", () => {
 loadTrack(0, false);
 
 
+audio.addEventListener("play", () => {
+  playBtn.classList.add("pause");
+});
 
+audio.addEventListener("pause", () => {
+  playBtn.classList.remove("pause");
+});
 
 
 }
