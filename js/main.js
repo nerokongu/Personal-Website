@@ -5,7 +5,10 @@ const isPhone =
 if (isPhone) {
   document.getElementById("mobile-only").style.display = "flex";
   document.body.style.overflow = "hidden";
-  throw new Error("Phone device blocked");
+
+  // ❌ KHÔNG throw error
+  // ⛔ Dừng logic PC, nhưng vẫn cho model-viewer chạy
+  return;
 }
 const audio = document.getElementById("music");
 const playBtn = document.getElementById("play-btn");
