@@ -378,7 +378,7 @@ window.addEventListener("mouseup", () => {
   currentEngine = null;
 });
 
-function loadTrack(index, autoPlay = true) {
+async function loadTrack(index, autoPlay = true) {
   currentTrack = (index + tracks.length) % tracks.length;
 
   audio.src = tracks[currentTrack].src;
@@ -390,13 +390,13 @@ function loadTrack(index, autoPlay = true) {
   currentTimeEl.textContent = "0:00";
 
   if (autoPlay) {
-    audioCtx.resume();
+    await audioCtx.resume();   // 🔥 BẮT BUỘC
     audio.volume = 0;
-    audio.play();
+    await audio.play();        // 🔥 BẮT BUỘC
     fadeVolume(1);
-    playBtn.textContent = "⏸";
   }
 }
+
 prevBtn.addEventListener("click", () => {
   loadTrack(currentTrack - 1, !audio.paused);
 });
