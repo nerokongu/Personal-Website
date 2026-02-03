@@ -1,3 +1,12 @@
+const isPhone =
+  /Android|iPhone|iPod/i.test(navigator.userAgent) &&
+  !/iPad/i.test(navigator.userAgent);
+
+if (isPhone) {
+  document.getElementById("mobile-only").style.display = "flex";
+  document.body.style.overflow = "hidden";
+  throw new Error("Phone device blocked");
+}
 const audio = document.getElementById("music");
 const playBtn = document.getElementById("play-btn");
 const progressBar = document.getElementById("progress-bar");
@@ -16,6 +25,38 @@ let currentTrack = 0;
 const titleEl = document.getElementById("track-title");
 const prevBtn = document.getElementById("prev-btn");
 const nextBtn = document.getElementById("next-btn");
+
+const overlay = document.getElementById("start-overlay");
+overlay.classList.add("loading");
+
+let videoReady = false;
+let audioReadyEnter = false;
+let modelReady = false;
+
+function checkReady() {
+  console.log({
+    videoReady,
+    audioReadyEnter,
+    modelReady
+  });
+
+  if (videoReady && audioReadyEnter && modelReady) {
+    overlay.classList.remove("loading");
+    console.log("✅ ALL ASSETS READY");
+  }
+}
+
+const video = document.getElementById("bg-video");
+
+video.addEventListener("loadeddata", () => {
+  videoReady = true;
+  checkReady();
+});
+
+audio.addEventListener("loadedmetadata", () => {
+  audioReadyEnter = true;
+  checkReady();
+});
 
 // Play / Pause
 playBtn.onclick = async () => {
@@ -78,10 +119,13 @@ progress.addEventListener("click", (e) => {
   }
 });
 
-const overlay = document.getElementById("start-overlay");
-const video = document.getElementById("bg-video");
+overlay.addEventListener("click", async (e) => {
+  e.stopPropagation(); // chặn xuyên lớp (rất quan trọng)
 
-overlay.addEventListener("click", async () => {
+  if (overlay.classList.contains("loading")) {
+    return; // chưa load xong → không làm gì
+  }
+
   overlay.classList.add("hidden");
 
   await audioCtx.resume();
@@ -272,6 +316,13 @@ toggle.addEventListener("click", () => {
 });
 
 const bmw = document.getElementById("bmw-menu");
+bmw.addEventListener("model-visibility", (e) => {
+  if (e.detail.visible) {
+    modelReady = true;
+    console.log("✅ MODEL READY");
+    checkReady();
+  }
+});
 requestAnimationFrame(animateGlow);
 
 // ===== BMW GAS BUTTON =====
@@ -334,16 +385,10 @@ function loadTrack(index, autoPlay = true) {
   audio.src = tracks[currentTrack].src;
   titleEl.textContent = tracks[currentTrack].title;
 
-  audio.load();
+  audio.load(); // BẮT BUỘC
+
   progressBar.style.width = "0%";
   currentTimeEl.textContent = "0:00";
-
-  if (autoPlay) {
-    audio.play();
-    playBtn.textContent = "⏸";
-  } else {
-    playBtn.textContent = "▶";
-  }
 }
 
 prevBtn.addEventListener("click", () => {

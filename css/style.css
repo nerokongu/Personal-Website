@@ -713,3 +713,41 @@ h1 {
   cursor: pointer;
 }
 
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999; /* CAO NHẤT */
+  pointer-events: auto; /* LUÔN bắt click */
+}
+
+#start-overlay.loading .start-content {
+  opacity: 0.4;
+}
+
+#mobile-only {
+  position: fixed;
+  inset: 0;
+  background: #000;
+  z-index: 100000;
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+#mobile-only model-viewer {
+  pointer-events: none; /* chỉ xem, không tương tác */
+}
+
+.mobile-text {
+  margin-top: 20px;
+  text-align: center;
+  color: white;
+  font-family: system-ui, sans-serif;
+  letter-spacing: 1px;
+}
+
+.mobile-text span {
+  font-size: 14px;
+  opacity: 0.6;
+}
