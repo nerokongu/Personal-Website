@@ -5,11 +5,7 @@ const isPhone =
 if (isPhone) {
   document.getElementById("mobile-only").style.display = "flex";
   document.body.style.overflow = "hidden";
-
-  // ❌ KHÔNG throw error
-  // ⛔ Dừng logic PC, nhưng vẫn cho model-viewer chạy
-  return;
-}
+} else {
 const audio = document.getElementById("music");
 const playBtn = document.getElementById("play-btn");
 const progressBar = document.getElementById("progress-bar");
@@ -408,3 +404,8 @@ audio.addEventListener("ended", () => {
 
 loadTrack(0, false);
 
+
+
+
+
+}
