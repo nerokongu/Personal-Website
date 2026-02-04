@@ -723,42 +723,34 @@ h1 {
 #start-overlay.loading .start-content {
   opacity: 0.4;
 }
-/* =========================
-   MOBILE ONLY SCREEN
-========================= */
+
 #mobile-only {
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at center, #111 0%, #000 70%);
+  background: #000;
+  z-index: 100000;
   display: none;
   flex-direction: column;
-  justify-content: flex-start;
   align-items: center;
-  z-index: 9999;
+  justify-content: center;
+}
+
+#mobile-only model-viewer {
+  pointer-events: none; /* chỉ xem, không tương tác */
 }
 
 .mobile-text {
-  margin-top: 16px;
-  padding: 0 20px;
-
+  margin-top: 20px;
   text-align: center;
-  color: #fff;
-
-  font-weight: 700;
-  letter-spacing: 1.2px;
-
-  font-size: 30px;        /* 🔥 TO HƠN */
-  text-shadow:
-    0 0 14px rgba(255,255,255,0.45);
+  color: white;
+  font-family: system-ui, sans-serif;
+  letter-spacing: 1px;
+  font-size: 45px;
 }
 
 .mobile-text span {
-  display: block;
-  margin-top: 10px;
-
-  font-size: 18px;        /* 🔥 to rõ */
-  font-weight: 400;
-  opacity: 0.85;
+  font-size: 30px;
+  opacity: 0.6;
 }
 /* ===============================
    PLAY / PAUSE BUTTON – FINAL
@@ -1151,22 +1143,3 @@ h1 {
   right: -22px;
 }
 
-@media (max-width: 768px) {
-  body {
-    overflow: auto;   /* 🔥 mở lại cho mobile */
-  }
-}
-
-@media (max-width: 768px) {
-  #bmw-menu {
-    transform: none !important;   /* ❗ bỏ scale + lệch */
-    width: 100%;
-    height: 60vh;
-    max-width: 100%;
-    max-height: none;
-  }
-
-  .model-wrap {
-    touch-action: pan-y;
-  }
-}

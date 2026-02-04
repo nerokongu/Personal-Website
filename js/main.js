@@ -453,12 +453,7 @@ contactPopup.addEventListener("click", (e) => {
   e.stopPropagation();
 });
 
-if (window.innerWidth <= 768) {
-  const mobileScreen = document.getElementById("mobile-only");
-  if (mobileScreen) {
-    mobileScreen.style.display = "flex";
-  }
-}
+
 
 
 
