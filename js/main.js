@@ -178,9 +178,10 @@ function animateGlow() {
       0 0 ${10 + intensity * 25}px rgba(255,255,255,${0.1 + intensity * 0.3})
     `;
   });
-  
 
   requestAnimationFrame(animateGlow);
+
+  
 }
 
 
@@ -314,6 +315,17 @@ toggle.addEventListener("click", () => {
   menu.classList.toggle("open");
 });
 
+// click ra ngoài menu thì đóng
+document.addEventListener("click", (e) => {
+  if (
+    menu.classList.contains("open") &&
+    !menu.contains(e.target) &&
+    !toggle.contains(e.target)
+  ) {
+    menu.classList.remove("open");
+  }
+});
+
 const bmw = document.getElementById("bmw-menu");
 bmw.addEventListener("model-visibility", (e) => {
   if (e.detail.visible) {
@@ -419,6 +431,55 @@ audio.addEventListener("play", () => {
 audio.addEventListener("pause", () => {
   playBtn.classList.remove("pause");
 });
+
+
+// ===== CONTACT POPUP =====
+const contactBtn = document.getElementById("contact-btn");
+const contactOverlay = document.getElementById("contact-overlay");
+const contactPopup = document.getElementById("contact-popup");
+
+contactBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  contactOverlay.classList.add("active");
+});
+
+// click ra ngoài popup thì đóng
+contactOverlay.addEventListener("click", () => {
+  contactOverlay.classList.remove("active");
+});
+
+// chặn click bên trong popup
+contactPopup.addEventListener("click", (e) => {
+  e.stopPropagation();
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 }

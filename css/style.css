@@ -825,3 +825,320 @@ h1 {
     opacity: 1;
   }
 }
+
+/* ===== CONTACT POPUP – BIG & CLEAR ===== */
+#contact-popup {
+  width: 420px;
+  max-width: 90vw;
+  padding: 36px 34px;
+
+  background: rgba(0,0,0,0.82);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.25);
+
+  text-align: center;
+
+  transform: scale(0.25);
+  opacity: 0;
+
+  transition:
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.25s ease;
+}
+
+#contact-overlay.active #contact-popup {
+  transform: scale(1);
+  opacity: 1;
+}
+
+/* ===== TITLE ===== */
+#contact-popup h3 {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.6px;
+
+  margin-bottom: 28px;
+
+  color: #ffffff;
+  opacity: 0.95;
+}
+
+/* ===== ICONS ===== */
+.contact-icons {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+
+  margin-bottom: 28px;
+}
+
+.contact-icons a {
+  width: 64px;
+  height: 64px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,0.25);
+
+  color: white;
+  font-size: 28px;
+
+  background: rgba(255,255,255,0.06);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease;
+}
+
+.contact-icons a:hover {
+  transform: scale(1.18);
+  background: white;
+  color: black;
+
+  box-shadow: 0 0 26px rgba(255,255,255,0.55);
+}
+
+/* ===== EMAIL ===== */
+.contact-email {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: 0.4px;
+
+  color: #ffffff;
+  opacity: 0.85;
+
+  padding-top: 12px;
+  border-top: 1px solid rgba(255,255,255,0.18);
+}
+
+/* ===== CONTACT OVERLAY – FIX POSITION ===== */
+#contact-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(6px);
+
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+/* khi mở */
+#contact-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.contact-icons a {
+  border: none !important;
+  text-decoration: none !important;
+}
+
+.contact-icons a::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+
+  background: rgba(255,255,255,0.25);
+  filter: blur(14px);
+
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  z-index: -1;
+}
+
+.contact-icons a:hover::after {
+  opacity: 1;
+}
+
+
+/* ===== MENU RIGHT ICON ===== */
+.menu-right .menu-items button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* icon */
+.menu-right .menu-items i {
+  font-size: 22px;
+  width: 28px;
+  text-align: center;
+
+  opacity: 0.85;
+  transition: transform 0.25s ease, opacity 0.25s ease;
+}
+
+/* hover */
+.menu-right .menu-items button:hover i {
+  transform: scale(1.25);
+  opacity: 1;
+}
+
+.menu-right .menu-items button:hover i {
+  text-shadow: 0 0 14px rgba(255,255,255,0.6);
+}
+
+/* ===== MENU RIGHT – CLEAN HOVER GLOW ===== */
+.menu-right .menu-items button {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+
+  font-size: 21px;          /* 👈 to hơn xíu thôi */
+  font-weight: 500;
+  letter-spacing: 0.8px;
+
+  background: transparent;
+  border: none;
+  color: #fff;
+  cursor: pointer;
+
+  transition:
+    color 0.25s ease,
+    text-shadow 0.25s ease;
+}
+
+/* icon */
+.menu-right .menu-items i {
+  font-size: 24px;          /* 👈 icon nhỉnh hơn chữ */
+  width: 30px;
+  text-align: center;
+
+  opacity: 0.85;
+
+  transition:
+    opacity 0.25s ease,
+    text-shadow 0.25s ease;
+}
+
+/* ===== HOVER GLOW ===== */
+.menu-right .menu-items button:hover {
+  text-shadow:
+    0 0 14px rgba(255,255,255,0.75);
+}
+
+.menu-right .menu-items button:hover i {
+  opacity: 1;
+  text-shadow:
+    0 0 20px rgba(255,255,255,0.9),
+    0 0 36px rgba(255,255,255,0.5);
+}
+
+.menu-right .menu-items button {
+  position: relative;
+  overflow: visible;
+}
+
+/* KHUNG TRÁI + PHẢI */
+.menu-right .menu-items button::before,
+.menu-right .menu-items button::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scaleY(0.6);
+
+  width: 14px;
+  height: 70%;
+
+  border: 2px solid #ff3b3b;
+  opacity: 0;
+
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+/* TRÁI */
+.menu-right .menu-items button::before {
+  left: -20px;
+  border-right: none;
+}
+
+/* PHẢI */
+.menu-right .menu-items button::after {
+  right: -20px;
+  border-left: none;
+}
+
+/* ===== HOVER = SELECT ===== */
+.menu-right .menu-items button:hover::before,
+.menu-right .menu-items button:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) scaleY(1);
+
+  box-shadow:
+    0 0 14px rgba(255,60,60,0.9),
+    0 0 30px rgba(255,60,60,0.45);
+}
+
+/* chữ + icon nổi nhẹ khi chọn */
+.menu-right .menu-items button:hover {
+  text-shadow: 0 0 14px rgba(255,255,255,0.75);
+}
+
+/* ===== CENTER CONTENT BETWEEN SELECT BARS ===== */
+.menu-right .menu-items button {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;   /* 👈 TRUNG TÂM NGANG */
+
+  gap: 14px;
+
+  padding: 16px 0;          /* 👈 KHÔNG padding ngang */
+  width: 260px;             /* 👈 CỐ ĐỊNH TRỤC GIỮA */
+
+  margin: 0 auto;           /* 👈 CANH GIỮA MENU */
+}
+
+/* ICON */
+.menu-right .menu-items i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  line-height: 1;
+}
+
+/* TEXT */
+.menu-right .menu-items span {
+  display: flex;
+  align-items: center;
+
+  line-height: 1;
+}
+
+/* LEFT BAR */
+.menu-right .menu-items button::before {
+  left: -22px;   /* đều nhau */
+}
+
+/* RIGHT BAR */
+.menu-right .menu-items button::after {
+  right: -22px;
+}
+
