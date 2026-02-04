@@ -723,43 +723,37 @@ h1 {
 #start-overlay.loading .start-content {
   opacity: 0.4;
 }
-
+/* =========================
+   MOBILE ONLY SCREEN
+========================= */
 #mobile-only {
   position: fixed;
   inset: 0;
-  background: #000;
-  z-index: 100000;
+  background: radial-gradient(circle at center, #111 0%, #000 70%);
   display: none;
   flex-direction: column;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
+  z-index: 9999;
 }
 
-#mobile-only model-viewer {
-  pointer-events: none; /* chỉ xem, không tương tác */
-}
-
+/* Chữ mobile */
 .mobile-text {
   margin-top: 20px;
   text-align: center;
-  color: white;
-  font-family: system-ui, sans-serif;
-  letter-spacing: 1px;
-  font-size: 32px;        /* 🔥 TO HƠN */
+  color: #fff;
   font-weight: 700;
-  letter-spacing: 4px;    /* kiểu tech */
-  text-transform: uppercase;
-
-  color: rgba(255,255,255,0.9);
-
-  text-shadow:
-    0 0 10px rgba(255,255,255,0.25),
-    0 0 30px rgba(255,255,255,0.15);
+  letter-spacing: 1px;
+  font-size: 26px;
+  text-shadow: 0 0 12px rgba(255,255,255,0.35);
 }
 
 .mobile-text span {
-  font-size: 25px;
-  opacity: 0.6;
+  display: block;
+  margin-top: 8px;
+  font-size: 16px;
+  font-weight: 400;
+  opacity: 0.85;
 }
 /* ===============================
    PLAY / PAUSE BUTTON – FINAL

@@ -18,14 +18,15 @@
 
 <div id="mobile-only">
   <model-viewer
-    id="mobile-model"
-    src="assets/models/bmw.glb"
-    camera-controls
-    auto-rotate
-    disable-zoom
-    exposure="1"
-    style="width: 100%; height: 70vh;"
-  ></model-viewer>
+  id="mobile-model"
+  src="assets/models/bmw.glb"
+  camera-controls
+  touch-action="pan-y"
+  auto-rotate
+  rotation-per-second="15deg"
+  exposure="1.1"
+  style="width: 100%; height: 65vh;"
+></model-viewer>
 
   <div class="mobile-text">
     PC only<br />
