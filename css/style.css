@@ -745,10 +745,20 @@ h1 {
   color: white;
   font-family: system-ui, sans-serif;
   letter-spacing: 1px;
+  font-size: 32px;        /* 🔥 TO HƠN */
+  font-weight: 700;
+  letter-spacing: 4px;    /* kiểu tech */
+  text-transform: uppercase;
+
+  color: rgba(255,255,255,0.9);
+
+  text-shadow:
+    0 0 10px rgba(255,255,255,0.25),
+    0 0 30px rgba(255,255,255,0.15);
 }
 
 .mobile-text span {
-  font-size: 14px;
+  font-size: 25px;
   opacity: 0.6;
 }
 /* ===============================
