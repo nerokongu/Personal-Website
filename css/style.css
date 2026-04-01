@@ -735,9 +735,6 @@ h1 {
   justify-content: center;
 }
 
-#mobile-only model-viewer {
-  pointer-events: none; /* chỉ xem, không tương tác */
-}
 
 .mobile-text {
   margin-top: 20px;
@@ -1141,5 +1138,185 @@ h1 {
 /* RIGHT BAR */
 .menu-right .menu-items button::after {
   right: -22px;
+}
+
+
+/* ===== MUSIC PAGE ===== */
+#music-page {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle at top, #111, #000);
+
+  z-index: 2000;
+
+  transform: translateX(100%);
+  transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#music-page.active {
+  transform: translateX(0);
+}
+
+/* BACK BUTTON */
+/* ===== MUSIC BACK FIX ===== */
+#music-back-wrapper {
+  position: fixed;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  z-index: 10;
+
+  pointer-events: none; /* chỉ arrow nhận click */
+}
+
+#music-back {
+  pointer-events: auto;
+
+  margin-left: 22px;
+
+  font-size: 28px;
+  cursor: pointer;
+
+  opacity: 0.7;
+  transition:
+    transform 0.25s ease,
+    opacity 0.25s ease;
+}
+
+#music-back:hover {
+  transform: translateX(-6px);
+  opacity: 1;
+}
+
+#music-page:not(:hover) #music-back {
+  opacity: 0.35;
+}
+
+/* TOP VISUAL */
+.music-top {
+  margin-top: 80px;
+  text-align: center;
+}
+
+#visualizer {
+  width: 320px;
+  height: 160px;
+  opacity: 0.8;
+}
+
+.music-title {
+  margin-top: 12px;
+  font-size: 14px;
+  letter-spacing: 2px;
+  opacity: 0.6;
+}
+
+.music-name {
+  font-size: 26px;
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+/* PLAYER */
+.music-player {
+  margin-top: auto;
+  margin-bottom: 80px;
+
+  padding: 26px 34px;
+  border-radius: 22px;
+
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(12px);
+
+  box-shadow: 0 0 40px rgba(255,255,255,0.15);
+}
+
+.music-controls {
+  display: flex;
+  gap: 26px;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.music-controls button {
+  font-size: 26px;
+  background: none;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+/* PROGRESS */
+.music-progress {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  opacity: 0.8;
+}
+
+.m-bar {
+  width: 220px;
+  height: 3px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.m-bar-fill {
+  width: 0%;
+  height: 100%;
+  background: white;
+}
+
+#music-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+
+  background: radial-gradient(circle at center, #111, #000);
+}
+
+/* Nội dung nổi lên trên */
+#music-page > *:not(#music-bg) {
+  position: relative;
+  z-index: 2;
+}
+
+/* ===== GLOBAL MUSIC BACK (FIX DỨT ĐIỂM) ===== */
+#music-back-global {
+  position: fixed;
+  top: 50%;
+  left: 18px;
+  transform: translateY(-50%);
+
+  z-index: 5000;
+  cursor: pointer;
+
+  font-size: 40px;
+  color: white;
+
+  opacity: 0;
+  pointer-events: none;
+
+  transition:
+    opacity 0.3s ease,
+    transform 0.25s ease;
+}
+
+/* chỉ hiện khi music page mở */
+#music-page.active ~ #music-back-global,
+#music-back-global.active {
+  opacity: 0.7;
+  pointer-events: auto;
+}
+
+#music-back-global:hover {
+  transform: translate(-6px, -50%);
+  opacity: 1;
 }
 

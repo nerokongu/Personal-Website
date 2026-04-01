@@ -108,7 +108,7 @@
           <span>Gym</span>
         </button>
 
-        <button>
+        <button id="open-music">
           <i class="fa-solid fa-music"></i>
           <span>Music</span>
         </button>
@@ -191,6 +191,42 @@
       <a href="#" id="contact-btn">Contact</a>
     </div>
   </div>
+</div>
+
+<!-- GLOBAL MUSIC BACK -->
+<div id="music-back-global">
+  <i class="fa-solid fa-angle-left"></i>
+</div>
+
+<!-- ===== MUSIC PAGE ===== -->
+<div id="music-page">
+  <!-- Back button -->
+
+  <canvas id="music-bg"></canvas>
+
+  <!-- Visualize + title -->
+  <div class="music-top">
+    <div class="music-title">Now Playing</div>
+    <div class="music-name">Track Name</div>
+  </div>
+
+  <!-- Player -->
+  <div class="music-player">
+    <div class="music-controls">
+      <button id="m-prev">⏮</button>
+      <button id="m-play">▶</button>
+      <button id="m-next">⏭</button>
+    </div>
+
+    <div class="music-progress">
+      <span id="m-current">0:00</span>
+      <div class="m-bar">
+        <div class="m-bar-fill"></div>
+      </div>
+      <span id="m-duration">0:00</span>
+    </div>
+  </div>
+
 </div>
 
   <script type="module" src="js/main.js"></script>
