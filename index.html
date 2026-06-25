@@ -2,233 +2,350 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>NeroKoNgu</title>
+
+  <!-- CSS chính, file này sẽ import các file CSS nhỏ bên trong thư mục css -->
   <link rel="stylesheet" href="css/style.css">
+
+  <!-- Font Awesome Icons -->
   <link
     rel="stylesheet"
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-  />
-  <script type="module"
+  >
+
+  <!-- Google model-viewer -->
+  <script
+    type="module"
     src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
   </script>
 </head>
 
-
 <body>
+  <!-- ===== MOBILE ONLY SCREEN ===== -->
+  <div id="mobile-only" style="display: none;">
+    <model-viewer
+      id="mobile-model"
+      src="assets/models/bmw.glb"
+      camera-controls
+      auto-rotate
+      rotation-per-second="20deg"
+      touch-action="pan-y"
+      interaction-prompt="none"
+      disable-zoom
+      exposure="1"
+    ></model-viewer>
 
-<div id="mobile-only">
-  <model-viewer
-    id="mobile-model"
-    src="assets/models/bmw.glb"
-    camera-controls
-    auto-rotate
-    rotation-per-second="20deg"
-    touch-action="pan-y"
-    interaction-prompt="none"
-    disable-zoom
-    exposure="1"
-    style="width: 100%; height: 70vh;"
-  ></model-viewer>
-
-  <div class="mobile-text">
-    PC only<br />
-    <span>Mobile devices are not supported</span>
-  </div>
-</div>
-
-  <!-- CONTACT POPUP -->
-<div id="contact-overlay">
-  <div id="contact-popup">
-    <h3>All contact information via</h3>
-
-    <div class="contact-icons">
-      <a href="https://facebook.com/NeroKoNgu" target="_blank">
-        <i class="fa-brands fa-facebook"></i>
-      </a>
-
-      <a href="https://www.instagram.com/urwrong_2801/" target="_blank">
-        <i class="fa-brands fa-instagram"></i>
-      </a>
-
-      <a href="https://t.me/nerokongu" target="_blank">
-        <i class="fa-brands fa-telegram"></i>
-      </a>
-    </div>
-
-    <div class="contact-email">
-      buiquocquan2801@gmail.com
+    <div class="mobile-text">
+      PC only<br>
+      <span>Mobile devices are not supported</span>
     </div>
   </div>
-</div>
 
-<canvas id="dust-canvas"></canvas>
-
-<!-- Curtain Menu -->
-<div id="menu-toggle">
-  <span></span>
-  <span></span>
-  <span></span>
-</div>
-
-<div id="curtain-menu">
-  
-  <div class="menu-layout">
-
-    <!-- BÊN TRÁI: 3D  -->
-    <div class="menu-left">
-
-      <div class="model-wrap">
-        <model-viewer
-          id="bmw-menu"
-          src="assets/models/bmw.glb"
-          camera-controls
-          auto-rotate
-          rotation-per-second="25deg"
-          disable-zoom
-          interaction-prompt="none"
-          exposure="1.1">
-        </model-viewer>
-      </div>
-
-    </div>
-
-    
-    <!-- DIVIDER + GAS -->
-    <div class="menu-divider">
-      <button id="rev-btn" class="rev-btn">
-        <img src="assets/BMW.svg" alt="BMW">
-      </button>
-    </div>
-
-    <!-- BÊN PHẢI: DANH MỤC -->
-    <div class="menu-right">
-      <div class="menu-items">
-        <button>
-          <i class="fa-solid fa-dumbbell"></i>
-          <span>Gym</span>
-        </button>
-
-        <button id="open-music">
-          <i class="fa-solid fa-music"></i>
-          <span>Music</span>
-        </button>
-
-        <button>
-          <i class="fa-solid fa-clapperboard"></i>
-          <span>Movie</span>
-        </button>
-      </div>
-    </div>
-
-  </div>
-
-</div>
-
-<div class="volume-control">
-  <div id="volume-icon" class="volume-icon">
-    <svg viewBox="0 0 24 24" class="icon">
-      <path class="speaker" d="M3 9v6h4l5 4V5L7 9H3z"/>
-      <path class="wave" d="M16 8a5 5 0 010 8"/>
-      <path class="wave" d="M19 5a9 9 0 010 14"/>
-      <line class="mute-line" x1="4" y1="4" x2="20" y2="20"/>
-    </svg>
-  </div>
-  <input type="range" id="volume-slider" min="0" max="1" step="0.01">
-</div>
-
-<div id="start-overlay">
-  <div class="start-content">
-    <h2>Click to enter</h2>
-    <p>Welcome to Nerohouse</p>
-  </div>
-</div>
-
-<!-- Nhạc nền -->
-
-<audio id="music" preload="metadata"></audio>
-
-<!-- ÂM THANH ĐỘNG CƠ -->
-<audio id="engine-sound" preload="auto"></audio>
-
-<div class="audio-player">
-  <img src="assets/hq720.jpg" class="cover">
-
-  <div class="audio-info">
-    <div class="title" id="track-title">Track 01</div>
-
-    <div class="time">
-      <span id="current">0:00</span>
-      <div class="progress" id="progress">
-        <div class="progress-bar" id="progress-bar"></div>
-      </div>
-      <span id="duration">0:00</span>
+  <!-- ===== START / PRELOADER OVERLAY ===== -->
+  <div id="start-overlay">
+    <div class="start-content">
+      <h2>Click to enter</h2>
+      <p>Welcome to Nerohouse</p>
     </div>
   </div>
-  <div class="controls">
-    <button id="prev-btn">⏮</button>
-    <button id="play-btn"></button>
-    <button id="next-btn">⏭</button>
-  </div>
-</div>
 
-  <!-- Video nền -->
+  <!-- ===== BACKGROUND ===== -->
   <video id="bg-video" autoplay muted loop playsinline>
-    <source src="assets/bg.mp4" type="video/mp4">
+    <source src="assets/videos/bg.mp4" type="video/mp4">
   </video>
 
   <div class="overlay"></div>
+  <canvas id="dust-canvas"></canvas>
 
-  <!-- Nội dung chính -->
-  <div class="center-wrapper">
-  <div class="profile-card">
-    <img src="assets/avatar.jpg" class="avatar">
-    <h1>NeroKoNgu</h1>
-    <p class="bio">Gym • Chess • BMW</p>
+  <!-- ===== GLOBAL AUDIO ===== -->
+  <audio id="music" preload="metadata"></audio>
+  <audio id="engine-sound" preload="auto"></audio>
 
-    <div class="links">
-      <a href="https://discord.gg/3upPJYf5FU"target="_blank" rel="noopener noreferrer">Discord</a>
-      <a href="https://github.com/nerokongu/Personal-Website/"target="_blank" rel="noopener noreferrer">GitHub</a>
-      <a href="#" id="contact-btn">Contact</a>
-    </div>
-  </div>
-</div>
-
-<!-- GLOBAL MUSIC BACK -->
-<div id="music-back-global">
-  <i class="fa-solid fa-angle-left"></i>
-</div>
-
-<!-- ===== MUSIC PAGE ===== -->
-<div id="music-page">
-  <!-- Back button -->
-
-  <canvas id="music-bg"></canvas>
-
-  <!-- Visualize + title -->
-  <div class="music-top">
-    <div class="music-title">Now Playing</div>
-    <div class="music-name">Track Name</div>
-  </div>
-
-  <!-- Player -->
-  <div class="music-player">
-    <div class="music-controls">
-      <button id="m-prev">⏮</button>
-      <button id="m-play">▶</button>
-      <button id="m-next">⏭</button>
+  <!-- ===== VOLUME CONTROL ===== -->
+  <div class="volume-control">
+    <div id="volume-icon" class="volume-icon">
+      <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+        <path class="speaker" d="M3 9v6h4l5 4V5L7 9H3z"></path>
+        <path class="wave" d="M16 8a5 5 0 010 8"></path>
+        <path class="wave" d="M19 5a9 9 0 010 14"></path>
+        <line class="mute-line" x1="4" y1="4" x2="20" y2="20"></line>
+      </svg>
     </div>
 
-    <div class="music-progress">
-      <span id="m-current">0:00</span>
-      <div class="m-bar">
-        <div class="m-bar-fill"></div>
+    <input
+      type="range"
+      id="volume-slider"
+      min="0"
+      max="1"
+      step="0.01"
+      aria-label="Volume"
+    >
+  </div>
+
+  <!-- ===== MAIN AUDIO PLAYER ===== -->
+  <div class="audio-player">
+    <img src="assets/images/hq720.jpg" class="cover" alt="Track cover">
+
+    <div class="audio-info">
+      <div class="title" id="track-title">Track 01</div>
+
+      <div class="time">
+        <span id="current">0:00</span>
+
+        <div class="progress" id="progress">
+          <div class="progress-bar" id="progress-bar"></div>
+        </div>
+
+        <span id="duration">0:00</span>
       </div>
-      <span id="m-duration">0:00</span>
+    </div>
+
+    <div class="controls">
+      <button id="prev-btn" type="button" aria-label="Previous track">⏮</button>
+      <button id="play-btn" type="button" aria-label="Play or pause"></button>
+      <button id="next-btn" type="button" aria-label="Next track">⏭</button>
     </div>
   </div>
 
-</div>
+  <!-- ===== CURTAIN MENU BUTTON ===== -->
+  <div id="menu-toggle" aria-label="Open menu">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
 
+  <!-- ===== CURTAIN MENU ===== -->
+  <div id="curtain-menu">
+    <div class="menu-layout">
+      <!-- Bên trái: BMW model -->
+      <div class="menu-left">
+        <div class="model-wrap">
+          <model-viewer
+            id="bmw-menu"
+            src="assets/models/bmw.glb"
+            camera-controls
+            auto-rotate
+            rotation-per-second="25deg"
+            disable-zoom
+            interaction-prompt="none"
+            exposure="1.1">
+          </model-viewer>
+        </div>
+      </div>
+
+      <!-- Divider + gas button -->
+      <div class="menu-divider">
+        <button id="rev-btn" class="rev-btn" type="button" aria-label="BMW engine sound">
+          <img src="assets/images/BMW.svg" alt="BMW">
+        </button>
+      </div>
+
+      <!-- Bên phải: Menu items -->
+      <div class="menu-right">
+        <div class="menu-items">
+          <button id="open-gym" type="button">
+            <i class="fa-solid fa-dumbbell"></i>
+            <span>Gym</span>
+          </button>
+
+          <button id="open-music" type="button">
+            <i class="fa-solid fa-music"></i>
+            <span>Music</span>
+          </button>
+
+          <button id="open-movie" type="button">
+            <i class="fa-solid fa-clapperboard"></i>
+            <span>Movie</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== MAIN PROFILE ===== -->
+  <main class="center-wrapper">
+    <section class="profile-card">
+      <img src="assets/images/avatar.jpg" class="avatar" alt="NeroKoNgu avatar">
+
+      <h1>NeroKoNgu</h1>
+      <p class="bio">Gym • Chess • BMW</p>
+
+      <div class="links">
+        <a
+          href="https://discord.gg/3upPJYf5FU"
+          target="_blank"
+          rel="noopener noreferrer">
+          Discord
+        </a>
+
+        <a
+          href="https://github.com/nerokongu/Personal-Website/"
+          target="_blank"
+          rel="noopener noreferrer">
+          GitHub
+        </a>
+
+        <a href="#" id="contact-btn">Contact</a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== GLOBAL BACK BUTTON FOR SUB PAGES ===== -->
+  <div id="music-back-global">
+    <i class="fa-solid fa-angle-left"></i>
+  </div>
+
+  <!-- ===== MUSIC PAGE ===== -->
+  <section id="music-page">
+    <canvas id="music-bg"></canvas>
+
+    <div class="music-top">
+      <div class="music-title">Now Playing</div>
+      <div class="music-name">Track Name</div>
+    </div>
+
+    <div class="music-player">
+      <div class="music-controls">
+        <button id="m-prev" type="button" aria-label="Previous track">⏮</button>
+        <button id="m-play" type="button" aria-label="Play or pause">▶</button>
+        <button id="m-next" type="button" aria-label="Next track">⏭</button>
+      </div>
+
+      <div class="music-progress">
+        <span id="m-current">0:00</span>
+
+        <div class="m-bar">
+          <div class="m-bar-fill"></div>
+        </div>
+
+        <span id="m-duration">0:00</span>
+      </div>
+    </div>
+
+    <a
+      id="music-file-btn"
+      href="https://drive.google.com/drive/folders/161XTnygXjyrQJ02KoPHX8QVPIgfY5jil?usp=sharing"
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Open music folder">
+      <i class="fa-solid fa-link"></i>
+    </a>
+  </section>
+
+  <!-- ===== MOVIE PAGE ===== -->
+  <section id="movie-page">
+    <canvas id="movie-bg"></canvas>
+
+    <div class="movie-hero">
+      <div class="movie-kicker">Movie Collection</div>
+
+      <h2>Choose Your Movie</h2>
+
+      <p id="movie-desc">
+        Chọn một bộ phim trong bộ sưu tập của bạn. Bạn có thể đổi tên phim, mô tả và link trong HTML.
+      </p>
+    </div>
+
+    <div class="movie-grid">
+      <button
+        class="movie-card active"
+        type="button"
+        data-title="Movie 01"
+        data-desc="Bộ phim đầu tiên trong collection của bạn."
+        data-link="http://vietnam.phimchautinhtri.net/phimctt/wp-content/uploads/2025/12/2.mp4">
+        <span class="movie-number">01</span>
+        <i class="fa-solid fa-film"></i>
+        <h3>Movie 01</h3>
+        <p>Action / Racing</p>
+      </button>
+
+      <button
+        class="movie-card"
+        type="button"
+        data-title="Movie 02"
+        data-desc="Bộ phim thứ hai, có thể thay bằng phim bạn thích."
+        data-link="">
+        <span class="movie-number">02</span>
+        <i class="fa-solid fa-video"></i>
+        <h3>Movie 02</h3>
+        <p>Drama / Night</p>
+      </button>
+
+      <button
+        class="movie-card"
+        type="button"
+        data-title="Movie 03"
+        data-desc="Bộ phim thứ ba trong danh sách movie page."
+        data-link="">
+        <span class="movie-number">03</span>
+        <i class="fa-solid fa-clapperboard"></i>
+        <h3>Movie 03</h3>
+        <p>Adventure</p>
+      </button>
+
+      <button
+        class="movie-card"
+        type="button"
+        data-title="Movie 04"
+        data-desc="Bộ phim thứ tư, bạn có thể gắn link Google Drive hoặc file local."
+        data-link="">
+        <span class="movie-number">04</span>
+        <i class="fa-solid fa-ticket"></i>
+        <h3>Movie 04</h3>
+        <p>Sci-fi / Dark</p>
+      </button>
+    </div>
+
+    <a
+      id="movie-watch-btn"
+      href="#"
+      target="_blank"
+      rel="noopener noreferrer">
+      <i class="fa-solid fa-play"></i>
+      <span>Add movie link</span>
+    </a>
+  </section>
+
+  <!-- ===== CONTACT POPUP ===== -->
+  <div id="contact-overlay">
+    <div id="contact-popup">
+      <h3>All contact information via</h3>
+
+      <div class="contact-icons">
+        <a
+          href="https://facebook.com/NeroKoNgu"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Facebook">
+          <i class="fa-brands fa-facebook"></i>
+        </a>
+
+        <a
+          href="https://www.instagram.com/urwrong_2801/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Instagram">
+          <i class="fa-brands fa-instagram"></i>
+        </a>
+
+        <a
+          href="https://t.me/nerokongu"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Telegram">
+          <i class="fa-brands fa-telegram"></i>
+        </a>
+      </div>
+
+      <div class="contact-email">
+        buiquocquan2801@gmail.com
+      </div>
+    </div>
+  </div>
+
+  <!-- JS chính, file này import các module nhỏ bên trong thư mục js -->
   <script type="module" src="js/main.js"></script>
 </body>
 </html>

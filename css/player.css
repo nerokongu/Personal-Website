@@ -1,0 +1,102 @@
+.audio-player {
+  position: fixed;
+  bottom: 30px;
+  left: 30px;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  padding: 14px 18px;
+  border-radius: 14px;
+
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(10px);
+
+  color: white;
+  z-index: 30;
+
+  transition: opacity 0.5s ease, filter 0.5s ease;
+}
+
+.audio-player.idle {
+  opacity: 0.8;
+  filter: blur(2px);
+}
+
+.cover {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.audio-info {
+  width: 180px;
+}
+
+.title {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.time {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  opacity: 0.85;
+}
+
+.progress {
+  flex: 1;
+  height: 2px;
+  background: rgba(255,255,255,0.3);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.progress-bar {
+  width: 0%;
+  height: 100%;
+  background: white;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 0;
+}
+
+.audio-player button {
+  width: 32px;
+  height: 32px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+}
+
+#play-btn {
+  font-size: 0;
+  position: relative;
+}
+
+#play-btn::before {
+  content: "▶";
+  font-size: 18px;
+  line-height: 1;
+  display: inline-block;
+  transition: transform 0.2s ease;
+}
+
+#play-btn.pause::before {
+  content: "⏸";
+  transform: scale(1.1);
+}

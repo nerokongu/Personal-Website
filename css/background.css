@@ -1,0 +1,78 @@
+#bg-video {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  z-index: -2;
+  pointer-events: none;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: -1;
+  pointer-events: none;
+}
+
+#dust-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  pointer-events: none;
+}
+
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: auto;
+}
+
+#start-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+
+  background: rgba(0,0,0,0.85);
+  backdrop-filter: blur(12px);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  cursor: pointer;
+  transition: opacity 0.8s ease;
+}
+
+#start-overlay.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+#start-overlay.loading .start-content {
+  opacity: 0.4;
+}
+
+.start-content {
+  text-align: center;
+  color: white;
+  animation: pulse 2s infinite;
+}
+
+.start-content h2 {
+  font-size: 32px;
+  margin-bottom: 10px;
+}
+
+.start-content p {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+@keyframes pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 1; }
+  100% { opacity: 0.6; }
+}
