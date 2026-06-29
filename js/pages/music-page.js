@@ -25,13 +25,18 @@ export function initMusicPage(audioSystem) {
     musicPage.classList.add("active");
     backBtn.classList.add("active");
 
+    document.body.classList.add("sub-page-open", "music-open");
+    document.body.classList.remove("movie-open");
+
     syncMusicUI();
   });
-
+  
   backBtn.addEventListener("click", () => {
     musicPage.classList.remove("active");
     moviePage.classList.remove("active");
     backBtn.classList.remove("active");
+
+    document.body.classList.remove("sub-page-open", "music-open", "movie-open");
   });
 
   mPlay.addEventListener("click", togglePlay);
