@@ -4,8 +4,7 @@ export function initDevice() {
     !/iPad/i.test(navigator.userAgent);
 
   if (isPhone) {
-    document.getElementById("mobile-only").style.display = "flex";
-    document.body.style.overflow = "hidden";
+    document.body.classList.add("is-phone");
   }
 
   return isPhone;

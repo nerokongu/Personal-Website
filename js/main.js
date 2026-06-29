@@ -14,23 +14,20 @@ import { initMovieBackground } from "./effects/movie-bg.js";
 import { initMusicPage } from "./pages/music-page.js";
 import { initMoviePage } from "./pages/movie-page.js";
 
-const isPhone = initDevice();
+initDevice();
 
-if (!isPhone) {
-  const audioSystem = initAudioPlayer();
+const audioSystem = initAudioPlayer();
 
-  initPreloader(audioSystem);
-  initVolume(audioSystem);
-  initMenu();
-  initContact();
+initPreloader(audioSystem);
+initVolume(audioSystem);
+initMenu();
+initContact();
 
-  initDust();
-  initGlow(audioSystem);
-  initMusicBackground(audioSystem);
-  initMovieBackground();
+initDust();
+initGlow(audioSystem);
+initMusicBackground(audioSystem);
+initMovieBackground();
 
-  initMusicPage(audioSystem);
-  initMoviePage();
-
-  initBmwEngine(audioSystem);
-}
+initMusicPage(audioSystem);
+initMoviePage();
+initBmwEngine(audioSystem);
