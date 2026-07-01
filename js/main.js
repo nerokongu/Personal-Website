@@ -14,20 +14,25 @@ import { initMovieBackground } from "./effects/movie-bg.js";
 import { initMusicPage } from "./pages/music-page.js";
 import { initMoviePage } from "./pages/movie-page.js";
 
-initDevice();
 
-const audioSystem = initAudioPlayer();
+const isPhone = initDevice();
 
-initPreloader(audioSystem);
-initVolume(audioSystem);
-initMenu();
-initContact();
+/* PC ONLY: điện thoại sẽ dừng ở màn hình mobile-only */
+if (!isPhone) {
+  const audioSystem = initAudioPlayer();
 
-initDust();
-initGlow(audioSystem);
-initMusicBackground(audioSystem);
-initMovieBackground();
+  initPreloader(audioSystem);
+  initVolume(audioSystem);
+  initMenu();
+  initContact();
 
-initMusicPage(audioSystem);
-initMoviePage();
-initBmwEngine(audioSystem);
+  initDust();
+  initGlow(audioSystem);
+  initMusicBackground(audioSystem);
+  initMovieBackground();
+
+  initMusicPage(audioSystem);
+  initMoviePage();
+
+  initBmwEngine(audioSystem);
+}

@@ -14,6 +14,9 @@ export function initMoviePage() {
     musicPage.classList.remove("active");
     moviePage.classList.add("active");
     backBtn.classList.add("active");
+
+    document.body.classList.add("sub-page-open", "movie-open");
+    document.body.classList.remove("music-open");
   });
 
   function selectMovie(card) {

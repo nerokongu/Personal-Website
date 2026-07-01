@@ -100,3 +100,10 @@
   content: "⏸";
   transform: scale(1.1);
 }
+
+/* Ẩn player chính khi đang ở trang Music hoặc Movie */
+body.sub-page-open .audio-player {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(30px);
+}
