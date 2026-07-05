@@ -23,6 +23,11 @@ export function initMovieBackground() {
   window.addEventListener("resize", resizeMovieBG);
 
   function drawMovieBackground() {
+    if (!document.body.classList.contains("movie-open")) {
+      requestAnimationFrame(drawMovieBackground);
+      return;
+    }
+
     movieCtx.clearRect(0, 0, movieW, movieH);
 
     const time = performance.now() * 0.001;

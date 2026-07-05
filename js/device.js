@@ -11,6 +11,13 @@ export function initDevice() {
 
     if (mobileOnly) {
       mobileOnly.style.display = "flex";
+
+      const mobileModel = document.getElementById("mobile-model");
+
+      if (mobileModel && mobileModel.dataset.src) {
+        mobileModel.src = mobileModel.dataset.src;
+      }
+
       setupMobileOnlyEffects(mobileOnly);
     }
   }

@@ -12,6 +12,12 @@ export function initMusicBackground(audioSystem) {
   window.addEventListener("resize", resizeBG);
 
   function drawMusicBackground() {
+
+    if (!document.body.classList.contains("music-open")) {
+      requestAnimationFrame(drawMusicBackground);
+      return;
+    }
+
     analyser.getByteFrequencyData(dataArray);
 
     bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);

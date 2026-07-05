@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Nero Admin</title>
+
+  <link rel="stylesheet" href="css/admin.css">
+
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+  >
+</head>
+
+<body>
+  <main class="admin-page">
+    <section id="login-box" class="admin-card">
+      <h1>Nero Admin</h1>
+      <p>Đăng nhập để quản lý danh sách phim.</p>
+
+      <input id="admin-email" type="email" placeholder="Email admin">
+      <input id="admin-password" type="password" placeholder="Mật khẩu">
+
+      <button id="login-btn" type="button">
+        Đăng nhập
+      </button>
+
+      <div id="login-message" class="message"></div>
+    </section>
+
+    <section id="admin-panel" class="admin-panel hidden">
+      <div class="admin-header">
+        <div>
+          <h1>Movie Manager</h1>
+          <p>Thêm, sửa hoặc xóa phim trong trang Movie.</p>
+        </div>
+
+        <button id="logout-btn" type="button">
+          Đăng xuất
+        </button>
+      </div>
+
+      <form id="movie-form" class="admin-card">
+        <input type="hidden" id="movie-id">
+
+        <div class="form-grid">
+          <label>
+            Tên phim
+            <input id="movie-title" type="text" required>
+          </label>
+
+          <label>
+            Năm
+            <input id="movie-year" type="text" placeholder="2001">
+          </label>
+
+          <label>
+            Thể loại
+            <input id="movie-genre" type="text" placeholder="Hài / Võ thuật">
+          </label>
+
+          <label>
+            Danh mục
+            <select id="movie-category">
+              <option value="stephen-chow">Stephen Chow</option>
+              <option value="favorite">Favorite Movies</option>
+              <option value="websites">Websites</option>
+              <option value="backup">Backup</option>
+            </select>
+          </label>
+        </div>
+
+        <label>
+          Mô tả
+          <textarea id="movie-desc" rows="4"></textarea>
+        </label>
+
+        <label>
+          Link poster
+          <input id="movie-poster" type="text" placeholder="assets/images/Đỗ thánh 3.jpeg">
+        </label>
+
+        <label>
+          Link video / website
+          <input id="movie-link" type="text" placeholder="https://...">
+        </label>
+
+        <div class="form-actions">
+          <button type="submit" id="save-movie-btn">
+            Lưu phim
+          </button>
+
+          <button type="button" id="reset-form-btn">
+            Làm mới form
+          </button>
+        </div>
+
+        <div id="form-message" class="message"></div>
+      </form>
+
+      <section class="movie-list-wrap">
+        <h2>Danh sách phim</h2>
+        <div id="admin-movie-list" class="admin-movie-list"></div>
+      </section>
+    </section>
+  </main>
+
+  <script type="module" src="js/admin.js"></script>
+</body>
+</html>

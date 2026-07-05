@@ -18,7 +18,25 @@ export function initMusicPage(audioSystem) {
   const mBarFill = document.querySelector(".m-bar-fill");
   const musicName = document.querySelector(".music-name");
 
+  let musicBgStarted = false;
+
+  function ensureMusicBackground() {
+    if (musicBgStarted) return;
+
+    musicBgStarted = true;
+
+    import("../effects/music-bg.js")
+      .then(({ initMusicBackground }) => {
+        initMusicBackground(audioSystem);
+        console.log("✅ Music background started");
+      })
+      .catch((err) => {
+        console.warn("⚠️ Không load được Music background:", err);
+      });
+  }
+
   openMusicBtn.addEventListener("click", () => {
+    ensureMusicBackground();
     document.getElementById("curtain-menu").classList.remove("open");
 
     moviePage.classList.remove("active");

@@ -1,9 +1,8 @@
-export function initPreloader(audioSystem) {
+export function initPreloader(audioSystem, onMainReady, onEnter) {
   const { audio, togglePlay } = audioSystem;
 
   const overlay = document.getElementById("start-overlay");
   const video = document.getElementById("bg-video");
-  const bmw = document.getElementById("bmw-menu");
 
   if (!overlay) return;
 
@@ -11,18 +10,28 @@ export function initPreloader(audioSystem) {
 
   let videoReady = false;
   let audioReady = false;
-  let modelReady = false;
+
+  let mainReadyCalled = false;
+  let entered = false;
 
   function checkReady() {
     console.log("PRELOADER:", {
       videoReady,
-      audioReady,
-      modelReady
+      audioReady
     });
 
-    if (videoReady && audioReady && modelReady) {
+    if (videoReady && audioReady) {
       overlay.classList.remove("loading");
-      console.log("✅ ALL ASSETS READY - CLICK ENABLED");
+
+      if (!mainReadyCalled) {
+        mainReadyCalled = true;
+
+        console.log("✅ MAIN PAGE READY - START LOADING MENU");
+
+        if (typeof onMainReady === "function") {
+          onMainReady();
+        }
+      }
     }
   }
 
@@ -76,48 +85,19 @@ export function initPreloader(audioSystem) {
     audioReady = true;
   }
 
-  // ===== MODEL READY =====
-  if (bmw) {
-    bmw.addEventListener("model-visibility", (e) => {
-      if (e.detail.visible) {
-        modelReady = true;
-        checkReady();
-      }
-    });
-
-    bmw.addEventListener("load", () => {
-      modelReady = true;
-      checkReady();
-    });
-  } else {
-    modelReady = true;
-  }
-
-  // Chống kẹt nếu model-viewer không bắn event
-  setTimeout(() => {
-    if (!modelReady) {
-      console.warn("⚠️ Model load lâu, bỏ qua model preloader");
-      modelReady = true;
-      checkReady();
-    }
-  }, 5000);
-
-  // Chống kẹt nếu audio không bắn loadedmetadata/error
+  // Chống kẹt nếu audio/video không bắn event
   setTimeout(() => {
     if (!audioReady) {
       console.warn("⚠️ Audio chưa ready, bỏ qua audio preloader");
       audioReady = true;
-      checkReady();
     }
-  }, 5000);
 
-  // Chống kẹt nếu video không bắn loadeddata/error
-  setTimeout(() => {
     if (!videoReady) {
       console.warn("⚠️ Video chưa ready, bỏ qua video preloader");
       videoReady = true;
-      checkReady();
     }
+
+    checkReady();
   }, 5000);
 
   checkReady();
@@ -125,17 +105,24 @@ export function initPreloader(audioSystem) {
   overlay.addEventListener("click", async (e) => {
     e.stopPropagation();
 
+    if (entered) return;
+
     if (overlay.classList.contains("loading")) {
       console.log("⏳ Vẫn đang loading, chưa cho click");
       return;
     }
 
+    entered = true;
     overlay.classList.add("hidden");
 
     try {
       await togglePlay();
     } catch (err) {
       console.warn("⚠️ Không phát được nhạc khi click enter:", err);
+    }
+
+    if (typeof onEnter === "function") {
+      onEnter();
     }
   });
 }

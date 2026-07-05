@@ -26,7 +26,7 @@
   <div id="mobile-only" style="display: none;">
     <model-viewer
       id="mobile-model"
-      src="assets/models/bmw.glb"
+      data-src="assets/models/bmw.glb"
       camera-controls
       auto-rotate
       rotation-per-second="20deg"
@@ -123,7 +123,9 @@
         <div class="model-wrap">
           <model-viewer
             id="bmw-menu"
-            src="assets/models/bmw.glb"
+            data-src="assets/models/bmw.glb"
+            loading="eager"
+            reveal="auto"
             camera-controls
             auto-rotate
             rotation-per-second="25deg"
@@ -234,78 +236,73 @@
   </section>
 
   <!-- ===== MOVIE PAGE ===== -->
-  <section id="movie-page">
-    <canvas id="movie-bg"></canvas>
 
-    <div class="movie-hero">
-      <div class="movie-kicker">Movie Collection</div>
+<section id="movie-page">
+  <canvas id="movie-bg"></canvas>
 
-      <h2>Choose Your Movie</h2>
+  <div class="movie-shell">
+    <!-- HERO -->
+    <div class="movie-hero-netflix">
+      <div class="movie-hero-info">
+        <div class="movie-kicker">Movie Collection</div>
 
-      <p id="movie-desc">
-        Chọn một bộ phim trong bộ sưu tập của bạn. Bạn có thể đổi tên phim, mô tả và link trong HTML.
-      </p>
+        <h2 id="movie-hero-title">Stephen Chow Collection</h2>
+
+        <p id="movie-hero-meta">Comedy • Hong Kong • Movie Library</p>
+
+        <p id="movie-desc">
+          Chọn một phim bên dưới, nút mở phim sẽ tự đổi sang link của phim đó.
+        </p>
+
+        <div class="movie-actions">
+          <a
+            id="movie-watch-btn"
+            href="#"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="disabled">
+            <i class="fa-solid fa-play"></i>
+            <span>Add movie link</span>
+          </a>
+        </div>
+      </div>
+
+      <div class="movie-hero-poster">
+        <img
+          id="movie-hero-img"
+          src="assets/images/Đỗ thánh 3.jpeg"
+          alt="Movie poster">
+      </div>
     </div>
 
-    <div class="movie-grid">
-      <button
-        class="movie-card active"
-        type="button"
-        data-title="Stephen Chow "
-        data-desc="Collection Of StephenChow Movie"
-        data-link="http://vietnam.phimchautinhtri.net/phimctt/wp-content/uploads/2025/12/2.mp4">
-        <span class="movie-number">01</span>
-        <i class="fa-solid fa-film"></i>
-        <h3>Stephen Chow</h3>
-        <p>Comedy</p>
+    <!-- CATEGORY TABS -->
+    <div class="movie-tabs">
+      <button class="movie-tab active" type="button" data-category="stephen-chow">
+        Stephen Chow
       </button>
 
-      <button
-        class="movie-card"
-        type="button"
-        data-title="Top Tier Movies"
-        data-desc="Movie collection of Nero"
-        data-link="">
-        <span class="movie-number">02</span>
-        <i class="fa-solid fa-video"></i>
-        <h3>Favorite Movies</h3>
-        <p>Drama /Comedy /Anime </p>
+      <button class="movie-tab" type="button" data-category="favorite">
+        Favorite Movies
       </button>
 
-      <button
-        class="movie-card"
-        type="button"
-        data-title="Websites"
-        data-desc="Websites watch movie."
-        data-link="">
-        <span class="movie-number">03</span>
-        <i class="fa-solid fa-clapperboard"></i>
-        <h3>Website</h3>
-        <p>Link</p>
+      <button class="movie-tab" type="button" data-category="websites">
+        Websites
       </button>
 
-      <button
-        class="movie-card"
-        type="button"
-        data-title="Backup Link"
-        data-desc="List Backup Link Movie"
-        data-link="">
-        <span class="movie-number">04</span>
-        <i class="fa-solid fa-ticket"></i>
-        <h3>Backup</h3>
-        <p>Link backup</p>
+      <button class="movie-tab" type="button" data-category="backup">
+        Backup
       </button>
     </div>
 
-    <a
-      id="movie-watch-btn"
-      href="#"
-      target="_blank"
-      rel="noopener noreferrer">
-      <i class="fa-solid fa-play"></i>
-      <span>Add movie link</span>
-    </a>
-  </section>
+    <!-- POSTER ROW -->
+    <div class="movie-row-header">
+      <h3 id="movie-row-title">Châu Tinh Trì Collection</h3>
+      <span>Choose a movie</span>
+    </div>
+
+    <div id="movie-poster-row" class="movie-poster-row"></div>
+  </div>
+</section>
 
   <!-- ===== CONTACT POPUP ===== -->
   <div id="contact-overlay">

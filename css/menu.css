@@ -62,8 +62,8 @@
   max-width: 700px;
   max-height: 480px;
 
-  transform: translateX(120px) scale(1.25);
-  transition: filter 0.12s linear;
+  transform: translateX(clamp(0px, 5vw, 120px)) scale(1.18);
+  transition: filter 0.12s linear, transform 0.25s ease;
 }
 
 .menu-divider {
@@ -189,4 +189,145 @@
   box-shadow:
     0 0 14px rgba(255,60,60,0.9),
     0 0 30px rgba(255,60,60,0.45);
+}
+
+/* ===== MENU RESPONSIVE FIX FOR SMALL DESKTOP WIDTH ===== */
+@media (max-width: 900px) {
+  #curtain-menu {
+    height: 46vh;
+    top: -46vh;
+  }
+
+  #curtain-menu.open {
+    top: 0;
+  }
+
+  .menu-layout {
+    display: grid;
+    grid-template-columns: 1fr 1px 1fr;
+    align-items: center;
+  }
+
+  .menu-left,
+  .menu-right {
+    min-width: 0;
+  }
+
+  .model-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  #bmw-menu {
+    width: 100%;
+    height: 100%;
+    max-width: 330px;
+    max-height: 250px;
+
+    transform: scale(1.05);
+  }
+
+  .menu-divider {
+    margin: 0 18px;
+  }
+
+  .rev-btn {
+    width: 58px;
+    height: 58px;
+  }
+
+  .rev-btn img {
+    width: 36px;
+    height: 36px;
+  }
+
+  .menu-right .menu-items button {
+    width: 180px;
+    font-size: 18px;
+    padding: 13px 0;
+    gap: 12px;
+  }
+
+  .menu-right .menu-items i {
+    font-size: 21px;
+    width: 26px;
+  }
+}
+
+#curtain-menu {
+  top: 0;
+  transform: translateY(-100%);
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+#curtain-menu.open {
+  transform: translateY(0);
+}
+
+#menu-toggle.menu-loading {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: blur(0.4px);
+}
+
+#menu-toggle.menu-ready {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.model-wrap::before {
+  content: "BMW SYSTEM LOADING";
+
+  position: absolute;
+  left: 50%;
+  top: 50%;
+
+  transform: translate(-50%, -50%);
+
+  font-size: 11px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.45);
+
+  opacity: 1;
+  pointer-events: none;
+
+  animation: menuModelPulse 1.8s ease-in-out infinite;
+  transition: opacity 0.35s ease;
+}
+
+.model-wrap.model-ready::before {
+  opacity: 0;
+}
+
+#bmw-menu {
+  opacity: 0;
+  transition:
+    opacity 0.45s ease,
+    filter 0.12s linear,
+    transform 0.25s ease;
+}
+
+.model-wrap.model-ready #bmw-menu {
+  opacity: 1;
+}
+
+.model-wrap.model-error::before {
+  content: "BMW MODEL ERROR";
+  color: rgba(255,80,80,0.7);
+}
+
+.model-wrap.model-ready #bmw-menu {
+  opacity: 1;
+}
+
+@keyframes menuModelPulse {
+  0%, 100% {
+    opacity: 0.28;
+  }
+
+  50% {
+    opacity: 0.75;
+  }
 }
