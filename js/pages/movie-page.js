@@ -1,12 +1,3 @@
-import { db } from "../firebase-config.js";
-
-import {
-  collection,
-  onSnapshot,
-  query,
-  orderBy
-} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
-
 export function initMoviePage() {
   const openMovieBtn = document.getElementById("open-movie");
   const moviePage = document.getElementById("movie-page");
@@ -28,6 +19,7 @@ export function initMoviePage() {
   let movieBgStarted = false;
 
   function ensureMovieBackground() {
+    
     if (movieBgStarted) return;
 
     movieBgStarted = true;
@@ -65,6 +57,7 @@ export function initMoviePage() {
   };
 
   openMovieBtn.addEventListener("click", () => {
+    listenMoviesFromFirestore();
     ensureMovieBackground();
     
     document.getElementById("curtain-menu").classList.remove("open");
@@ -173,58 +166,72 @@ export function initMoviePage() {
     }
   }
 
-  function listenMoviesFromFirestore() {
-    const moviesRef = collection(db, "movies");
-    const q = query(moviesRef, orderBy("createdAt", "desc"));
+  async function listenMoviesFromFirestore() {
+    if (movieDataStarted) return;
 
-    onSnapshot(q, (snapshot) => {
-      movieCollections = {
-        "stephen-chow": {
-          title: "Châu Tinh Trì Collection",
-          movies: []
-        },
+    movieDataStarted = true;
 
-        favorite: {
-          title: "Favorite Movies",
-          movies: []
-        },
+    try {
+      const [{ db }, firestore] = await Promise.all([
+        import("../firebase-config.js"),
+        import("https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js")
+      ]);
 
-        websites: {
-          title: "Movie Websites",
-          movies: []
-        },
+      const { collection, onSnapshot, query, orderBy } = firestore;
 
-        backup: {
-          title: "Backup Links",
-          movies: []
-        }
-      };
+      const moviesRef = collection(db, "movies");
+      const q = query(moviesRef, orderBy("createdAt", "desc"));
 
-      snapshot.docs.forEach(item => {
-        const movie = item.data();
-        const category = movie.category || "stephen-chow";
+      onSnapshot(q, (snapshot) => {
+        movieCollections = {
+          "stephen-chow": {
+            title: "Châu Tinh Trì Collection",
+            movies: []
+          },
 
-        if (!movieCollections[category]) return;
+          favorite: {
+            title: "Favorite Movies",
+            movies: []
+          },
 
-        movieCollections[category].movies.push({
-          title: movie.title || "Untitled",
-          year: movie.year || "",
-          genre: movie.genre || "",
-          desc: movie.desc || "",
-          poster: movie.poster || defaultPoster,
-          link: movie.link || ""
+          websites: {
+            title: "Movie Websites",
+            movies: []
+          },
+
+          backup: {
+            title: "Backup Links",
+            movies: []
+          }
+        };
+
+        snapshot.docs.forEach(item => {
+          const movie = item.data();
+          const category = movie.category || "stephen-chow";
+
+          if (!movieCollections[category]) return;
+
+          movieCollections[category].movies.push({
+            title: movie.title || "Untitled",
+            year: movie.year || "",
+            genre: movie.genre || "",
+            desc: movie.desc || "",
+            poster: movie.poster || defaultPoster,
+            link: movie.link || ""
+          });
         });
+
+        const activeTab = document.querySelector(".movie-tab.active");
+        const activeCategory = activeTab?.dataset.category || "stephen-chow";
+
+        renderCollection(activeCategory);
+      }, (err) => {
+        console.error("Không đọc được movies từ Firestore:", err);
       });
-
-      const activeTab = document.querySelector(".movie-tab.active");
-      const activeCategory = activeTab?.dataset.category || "stephen-chow";
-
-      renderCollection(activeCategory);
-    }, (err) => {
-      console.error("Không đọc được movies từ Firestore:", err);
-    });
+    } catch (err) {
+      console.warn("⚠️ Không load được Firestore cho Movie:", err);
+    }
   }
   
-  listenMoviesFromFirestore();
   renderCollection("stephen-chow");
 }

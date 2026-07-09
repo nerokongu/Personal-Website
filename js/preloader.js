@@ -1,4 +1,4 @@
-export function initPreloader(audioSystem, onMainReady, onEnter) {
+export function initPreloader(audioSystem, onEnterReady, onUserEnter) {
   const { audio, togglePlay } = audioSystem;
 
   const overlay = document.getElementById("start-overlay");
@@ -11,118 +11,79 @@ export function initPreloader(audioSystem, onMainReady, onEnter) {
   let videoReady = false;
   let audioReady = false;
 
-  let mainReadyCalled = false;
-  let entered = false;
-
   function checkReady() {
-    console.log("PRELOADER:", {
+    console.log({
       videoReady,
       audioReady
     });
 
     if (videoReady && audioReady) {
       overlay.classList.remove("loading");
-
-      if (!mainReadyCalled) {
-        mainReadyCalled = true;
-
-        console.log("✅ MAIN PAGE READY - START LOADING MENU");
-
-        if (typeof onMainReady === "function") {
-          onMainReady();
-        }
-      }
+      console.log("✅ MAIN ASSETS READY");
     }
   }
 
-  // ===== VIDEO READY =====
   if (video) {
     if (video.readyState >= 2) {
       videoReady = true;
+      checkReady();
     } else {
       video.addEventListener("loadeddata", () => {
         videoReady = true;
         checkReady();
-      });
-
-      video.addEventListener("canplay", () => {
-        videoReady = true;
-        checkReady();
-      });
+      }, { once: true });
 
       video.addEventListener("error", () => {
-        console.warn("⚠️ Video lỗi, bỏ qua video preloader");
+        console.warn("⚠️ Video background lỗi, bỏ qua preloader video");
         videoReady = true;
         checkReady();
-      });
+      }, { once: true });
     }
   } else {
     videoReady = true;
   }
 
-  // ===== AUDIO READY =====
   if (audio) {
     if (audio.readyState >= 1) {
       audioReady = true;
+      checkReady();
     } else {
       audio.addEventListener("loadedmetadata", () => {
         audioReady = true;
         checkReady();
-      });
-
-      audio.addEventListener("canplay", () => {
-        audioReady = true;
-        checkReady();
-      });
+      }, { once: true });
 
       audio.addEventListener("error", () => {
-        console.warn("⚠️ Audio lỗi hoặc sai đường dẫn, vẫn cho vào web");
+        console.warn("⚠️ Audio lỗi, bỏ qua preloader audio");
         audioReady = true;
         checkReady();
-      });
+      }, { once: true });
     }
   } else {
     audioReady = true;
   }
 
-  // Chống kẹt nếu audio/video không bắn event
   setTimeout(() => {
-    if (!audioReady) {
-      console.warn("⚠️ Audio chưa ready, bỏ qua audio preloader");
-      audioReady = true;
-    }
-
-    if (!videoReady) {
-      console.warn("⚠️ Video chưa ready, bỏ qua video preloader");
-      videoReady = true;
-    }
-
+    if (!videoReady) videoReady = true;
+    if (!audioReady) audioReady = true;
     checkReady();
-  }, 5000);
-
-  checkReady();
+  }, 2500);
 
   overlay.addEventListener("click", async (e) => {
     e.stopPropagation();
 
-    if (entered) return;
+    if (overlay.classList.contains("loading")) return;
 
-    if (overlay.classList.contains("loading")) {
-      console.log("⏳ Vẫn đang loading, chưa cho click");
-      return;
-    }
-
-    entered = true;
     overlay.classList.add("hidden");
 
-    try {
-      await togglePlay();
-    } catch (err) {
-      console.warn("⚠️ Không phát được nhạc khi click enter:", err);
+    if (typeof onUserEnter === "function") {
+      onUserEnter();
     }
 
-    if (typeof onEnter === "function") {
-      onEnter();
+    await togglePlay();
+
+    if (typeof onEnterReady === "function") {
+      onEnterReady();
     }
   });
 }

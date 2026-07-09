@@ -4,40 +4,64 @@ import { initPreloader } from "./preloader.js";
 import { initVolume } from "./volume.js";
 import { initContact } from "./contact.js";
 
-import { initDust } from "./effects/dust.js";
-import { initGlow } from "./effects/glow.js";
-
 const isPhone = initDevice();
 
-/* PC ONLY: điện thoại sẽ dừng ở màn hình mobile-only */
+let bmwModelPreloadStarted = false;
+let modelViewerScriptLoading = null;
+
 if (!isPhone) {
   const audioSystem = initAudioPlayer();
 
   initVolume(audioSystem);
   initContact();
-
-  initDust();
-  initGlow(audioSystem);
-
   prepareMenuButton();
 
   initPreloader(
     audioSystem,
 
     () => {
-      startProgressiveLoading(audioSystem);
+      startSmoothLoadingQueue(audioSystem);
     },
 
     () => {
-      console.log("🖱️ User entered - delay heavy BMW preload");
-      scheduleBmwMenuModelPreload(700);
+      console.log("🖱️ User entered");
     }
   );
 }
-let bmwModelPreloadStarted = false;
-let bmwModelPreloadTimer = null;
 
-/* ===== MENU BUTTON STATE ===== */
+/* ===== HELPERS ===== */
+function wait(ms = 300) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+function waitForPaint() {
+  return new Promise(resolve => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(resolve);
+    });
+  });
+}
+
+function runWhenIdle(task, timeout = 2500) {
+  return new Promise(resolve => {
+    const run = async () => {
+      try {
+        await task();
+      } catch (err) {
+        console.warn("⚠️ Idle task lỗi:", err);
+      } finally {
+        resolve();
+      }
+    };
+
+    if ("requestIdleCallback" in window) {
+      window.requestIdleCallback(run, { timeout });
+    } else {
+      setTimeout(run, 180);
+    }
+  });
+}
+
 function prepareMenuButton() {
   const menuToggle = document.getElementById("menu-toggle");
 
@@ -47,68 +71,132 @@ function prepareMenuButton() {
   menuToggle.classList.remove("menu-ready");
 }
 
-/* ===== LOAD WEBSITE STEP BY STEP ===== */
-async function startProgressiveLoading(audioSystem) {
-  console.log("🚀 Main ready, loading menu logic + preload BMW");
+/* ===== LOAD QUEUE ===== */
+async function startSmoothLoadingQueue(audioSystem) {
+  console.log("🚀 Start smooth loading queue");
+
+  await waitForPaint();
+  await wait(450);
+
+  await loadHomeEffectsStage(audioSystem);
+
+  await wait(500);
 
   await loadMenuStage(audioSystem);
 
-  loadSubPagesStage(audioSystem);
+  await wait(700);
+
+  await loadBmwStage();
+
+  await wait(700);
+
+  await loadMusicStage(audioSystem);
+
+  await wait(500);
+
+  await loadMovieStage();
+
+  console.log("✅ All stages loaded smoothly");
 }
 
-/* ===== STAGE 1: LOAD MENU MODEL + MENU LOGIC ===== */
+/* ===== STAGE 1: HOME EFFECTS ===== */
+async function loadHomeEffectsStage(audioSystem) {
+  console.log("✨ Stage 1: Home effects");
+
+  await runWhenIdle(async () => {
+    const { initDust } = await import("./effects/dust.js");
+    initDust();
+  });
+
+  await wait(260);
+
+  await runWhenIdle(async () => {
+    const { initGlow } = await import("./effects/glow.js");
+    initGlow(audioSystem);
+  });
+
+  console.log("✅ Home effects ready");
+}
+
+/* ===== STAGE 2: MENU ===== */
 async function loadMenuStage(audioSystem) {
+  console.log("📋 Stage 2: Menu logic");
+
   const menuToggle = document.getElementById("menu-toggle");
 
-  console.log("⚡ Loading menu logic first...");
+  try {
+    const { initMenu } = await import("./menu.js");
+    initMenu();
 
-  const [{ initMenu }, { initBmwEngine }] = await Promise.all([
-    import("./menu.js"),
-    import("./bmw-engine.js")
-  ]);
+    await wait(220);
 
-  // Menu effect, nút xổ menu, nút BMW engine phải chạy trước
-  initMenu();
-  initBmwEngine(audioSystem);
+    const { initBmwEngine } = await import("./bmw-engine.js");
+    initBmwEngine(audioSystem);
 
-  if (menuToggle) {
-    menuToggle.classList.remove("menu-loading");
-    menuToggle.classList.add("menu-ready");
+    if (menuToggle) {
+      menuToggle.classList.remove("menu-loading");
+      menuToggle.classList.add("menu-ready");
+    }
+
+    console.log("✅ Menu ready");
+  } catch (err) {
+    console.warn("⚠️ Không load được menu:", err);
+
+    if (menuToggle) {
+      menuToggle.classList.remove("menu-loading");
+      menuToggle.classList.add("menu-ready");
+    }
   }
-
-  console.log("✅ Menu effects ready");
-
-  // Không load BMW model ngay lập tức nữa.
-  // Đợi một chút để Click to enter luôn mượt.
-  scheduleBmwMenuModelPreload(1400);
 }
 
-function scheduleBmwMenuModelPreload(delay = 1200) {
-  if (bmwModelPreloadStarted) return;
+/* ===== STAGE 3: MODEL-VIEWER + BMW ===== */
+async function loadBmwStage() {
+  console.log("🚗 Stage 3: BMW model");
 
-  if (bmwModelPreloadTimer) {
-    clearTimeout(bmwModelPreloadTimer);
+  await runWhenIdle(async () => {
+    await startBmwMenuModelPreload();
+  }, 4000);
+
+  console.log("✅ BMW stage done");
+}
+
+function ensureModelViewerScript() {
+  if (customElements.get("model-viewer")) {
+    return Promise.resolve();
   }
 
-  bmwModelPreloadTimer = setTimeout(() => {
-    const runPreload = () => {
-      startBmwMenuModelPreload();
+  if (modelViewerScriptLoading) {
+    return modelViewerScriptLoading;
+  }
+
+  modelViewerScriptLoading = new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+
+    script.type = "module";
+    script.src = "https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js";
+
+    script.onload = async () => {
+      try {
+        await customElements.whenDefined("model-viewer");
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
     };
 
-    if ("requestIdleCallback" in window) {
-      window.requestIdleCallback(runPreload, {
-        timeout: 2500
-      });
-    } else {
-      requestAnimationFrame(() => {
-        setTimeout(runPreload, 0);
-      });
-    }
-  }, delay);
+    script.onerror = () => {
+      reject(new Error("Không load được model-viewer."));
+    };
+
+    document.head.appendChild(script);
+  });
+
+  return modelViewerScriptLoading;
 }
 
 async function startBmwMenuModelPreload() {
   if (bmwModelPreloadStarted) return;
+
   bmwModelPreloadStarted = true;
 
   const bmw = document.getElementById("bmw-menu");
@@ -118,7 +206,9 @@ async function startBmwMenuModelPreload() {
     console.warn("⚠️ Không tìm thấy #bmw-menu");
     return;
   }
-  
+
+  await ensureModelViewerScript();
+
   let finished = false;
 
   function markReady() {
@@ -143,6 +233,7 @@ async function startBmwMenuModelPreload() {
   }
 
   bmw.addEventListener("load", markReady, { once: true });
+  bmw.addEventListener("error", markError, { once: true });
 
   bmw.addEventListener("model-visibility", (e) => {
     if (e.detail.visible) {
@@ -150,48 +241,55 @@ async function startBmwMenuModelPreload() {
     }
   }, { once: true });
 
-  bmw.addEventListener("error", markError, { once: true });
-
   bmw.setAttribute("loading", "eager");
   bmw.setAttribute("reveal", "auto");
-
-  await customElements.whenDefined("model-viewer");
 
   const modelSrc =
     bmw.getAttribute("src") ||
     bmw.getAttribute("data-src") ||
     "assets/models/bmw.glb";
 
-  console.log("🚗 BMW model preload path:", modelSrc);
+  console.log("🚗 BMW model path:", modelSrc);
 
   if (!bmw.getAttribute("src")) {
     bmw.setAttribute("src", modelSrc);
   }
 
-  // Chống trường hợp model-viewer load nhưng không bắn event
-  setTimeout(() => {
-    if (!finished && bmw.getAttribute("src")) {
-      console.warn("⚠️ BMW model event lâu, vẫn thử hiện model");
-      markReady();
-    }
-  }, 6000);
+  await new Promise(resolve => {
+    bmw.addEventListener("load", resolve, { once: true });
+    bmw.addEventListener("error", resolve, { once: true });
+
+    setTimeout(() => {
+      if (!finished && bmw.getAttribute("src")) {
+        console.warn("⚠️ BMW model event lâu, vẫn cho load tiếp.");
+        markReady();
+      }
+
+      resolve();
+    }, 5000);
+  });
 }
 
-/* ===== STAGE 2: LOAD MUSIC/MOVIE LOGIC AFTER MENU ===== */
-async function loadSubPagesStage(audioSystem) {
-  console.log("🎵🎬 Loading Music/Movie page logic after menu...");
+/* ===== STAGE 4: MUSIC ===== */
+async function loadMusicStage(audioSystem) {
+  console.log("🎵 Stage 4: Music logic");
 
-  try {
-    const [{ initMusicPage }, { initMoviePage }] = await Promise.all([
-      import("./pages/music-page.js"),
-      import("./pages/movie-page.js")
-    ]);
-
+  await runWhenIdle(async () => {
+    const { initMusicPage } = await import("./pages/music-page.js");
     initMusicPage(audioSystem);
-    initMoviePage();
+  }, 3000);
 
-    console.log("✅ Music/Movie page logic ready");
-  } catch (err) {
-    console.warn("⚠️ Không load được Music/Movie page:", err);
-  }
+  console.log("✅ Music logic ready");
+}
+
+/* ===== STAGE 5: MOVIE ===== */
+async function loadMovieStage() {
+  console.log("🎬 Stage 5: Movie logic");
+
+  await runWhenIdle(async () => {
+    const { initMoviePage } = await import("./pages/movie-page.js");
+    initMoviePage();
+  }, 3000);
+
+  console.log("✅ Movie logic ready");
 }

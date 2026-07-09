@@ -1,8 +1,9 @@
-import { tracks } from "./config.js";
+import { tracks as defaultTracks } from "./config.js";
 import { formatTime, clamp } from "./utils.js";
 
 export function initAudioPlayer() {
   const audio = document.getElementById("music");
+  audio.crossOrigin = "anonymous";
 
   const playBtn = document.getElementById("play-btn");
   const prevBtn = document.getElementById("prev-btn");
@@ -24,21 +25,119 @@ export function initAudioPlayer() {
   analyser.fftSize = 256;
 
   source.connect(analyser);
-  analyser.connect(audioCtx.destination);
+  source.connect(audioCtx.destination);
 
   const dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+  let tracks = [...defaultTracks];
 
   let currentTrack = 0;
   let audioReady = false;
 
+  const VOLUME_KEY = "neroGlobalVolume";
+const MUTED_KEY = "neroGlobalMuted";
+const LAST_VOLUME_KEY = "neroLastVolume";
+
+function readNumber(value, fallback) {
+  const number = Number(value);
+  return Number.isFinite(number) ? number : fallback;
+}
+
+let globalVolume = readNumber(localStorage.getItem(VOLUME_KEY), 0.85);
+let lastVolume = readNumber(localStorage.getItem(LAST_VOLUME_KEY), globalVolume || 0.85);
+let globalMuted = localStorage.getItem(MUTED_KEY) === "1";
+
+globalVolume = clamp(globalVolume, 0, 1);
+lastVolume = clamp(lastVolume, 0.01, 1);
+
+audio.volume = globalVolume;
+audio.muted = globalMuted;
+
+function saveVolumeState() {
+  globalMuted = audio.muted;
+
+  localStorage.setItem(VOLUME_KEY, String(globalVolume));
+  localStorage.setItem(MUTED_KEY, globalMuted ? "1" : "0");
+  localStorage.setItem(LAST_VOLUME_KEY, String(lastVolume));
+}
+
+function emitVolumeSync() {
+  window.dispatchEvent(new CustomEvent("nero-volume-sync"));
+}
+
+function setVolume(value) {
+  const nextVolume = clamp(Number(value), 0, 1);
+
+  globalVolume = nextVolume;
+  audio.volume = nextVolume;
+  audio.muted = nextVolume === 0;
+
+  if (nextVolume > 0) {
+    lastVolume = nextVolume;
+  }
+
+  saveVolumeState();
+  emitVolumeSync();
+}
+
+function toggleMute() {
+  if (!audio.muted && audio.volume > 0) {
+    lastVolume = audio.volume;
+    audio.muted = true;
+  } else {
+    const restoreVolume = lastVolume || globalVolume || 0.85;
+
+    globalVolume = restoreVolume;
+    audio.volume = restoreVolume;
+    audio.muted = false;
+  }
+
+  saveVolumeState();
+  emitVolumeSync();
+}
+
+function restoreVolume() {
+  globalVolume = readNumber(localStorage.getItem(VOLUME_KEY), globalVolume || 0.85);
+  lastVolume = readNumber(localStorage.getItem(LAST_VOLUME_KEY), lastVolume || globalVolume || 0.85);
+  globalMuted = localStorage.getItem(MUTED_KEY) === "1";
+
+  globalVolume = clamp(globalVolume, 0, 1);
+  lastVolume = clamp(lastVolume, 0.01, 1);
+
+  audio.volume = globalVolume;
+  audio.muted = globalMuted;
+
+  emitVolumeSync();
+}
+
+function getVolumeState() {
+  return {
+    volume: audio.volume,
+    muted: audio.muted,
+    realVolume: audio.muted ? 0 : audio.volume,
+    lastVolume
+  };
+}
+
   async function togglePlay() {
-    if (audio.paused) {
-      await audioCtx.resume();
-      audio.volume = 1;
-      await audio.play();
-    } else {
-      audio.pause();
+    try {
+      if (audio.paused) {
+        await audioCtx.resume();
+
+        if (!audio.src) {
+          console.warn("⚠️ Audio chưa có src để phát.");
+          return;
+        }
+
+        await audio.play();
+      } else {
+        audio.pause();
+      }
+    } catch (err) {
+      console.warn("⚠️ audio.play() thất bại:", err);
     }
+
+    syncPlayButtons();
   }
 
   async function loadTrack(index, autoPlay = true) {
@@ -46,13 +145,22 @@ export function initAudioPlayer() {
     if (index >= tracks.length) index = 0;
 
     currentTrack = index;
+    audio.pause();
+
+    audioReady = false;
+    audio.crossOrigin = "anonymous";
     audio.src = tracks[currentTrack].src;
+    audio.load();
+
     titleEl.textContent = tracks[currentTrack].title;
 
     if (autoPlay) {
-      await audioCtx.resume();
-      audio.volume = 1;
-      await audio.play();
+      try {
+        await audioCtx.resume();
+        await audio.play();
+      } catch (err) {
+        console.warn("⚠️ Không phát được bài này:", err);
+      }
     }
 
     syncPlayButtons();
@@ -110,6 +218,18 @@ export function initAudioPlayer() {
     togglePlay,
     loadTrack,
     syncPlayButtons,
+    setVolume,
+    toggleMute,
+    restoreVolume,
+    getVolumeState,
+    setTracks: (newTracks) => {
+      if (!Array.isArray(newTracks) || !newTracks.length) return;
+
+      tracks = newTracks;
+      currentTrack = 0;
+      loadTrack(0, false);
+    },
+    getTracks: () => tracks,
     getCurrentTrack: () => currentTrack
   };
 }

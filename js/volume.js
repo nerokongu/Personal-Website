@@ -1,31 +1,36 @@
 export function initVolume(audioSystem) {
-  const { audio } = audioSystem;
+  const { audio, setVolume, toggleMute, getVolumeState } = audioSystem;
 
   const volumeSlider = document.getElementById("volume-slider");
   const volumeIcon = document.getElementById("volume-icon");
 
-  audio.volume = 1;
-  volumeSlider.value = 1;
+  if (!volumeSlider || !volumeIcon) return;
 
-  let lastVolume = 1;
+  function syncMainVolumeUI() {
+    const state = getVolumeState
+      ? getVolumeState()
+      : {
+          volume: audio.volume,
+          muted: audio.muted,
+          realVolume: audio.muted ? 0 : audio.volume
+        };
+
+    volumeSlider.value = state.realVolume;
+    volumeIcon.classList.toggle("muted", state.muted || state.realVolume === 0);
+  }
 
   volumeSlider.addEventListener("input", () => {
-    audio.volume = volumeSlider.value;
-    lastVolume = audio.volume;
-
-    volumeIcon.classList.toggle("muted", audio.volume === 0);
+    setVolume(Number(volumeSlider.value));
+    syncMainVolumeUI();
   });
 
   volumeIcon.addEventListener("click", () => {
-    if (audio.volume > 0) {
-      lastVolume = audio.volume;
-      audio.volume = 0;
-      volumeSlider.value = 0;
-      volumeIcon.classList.add("muted");
-    } else {
-      audio.volume = lastVolume || 1;
-      volumeSlider.value = audio.volume;
-      volumeIcon.classList.remove("muted");
-    }
+    toggleMute();
+    syncMainVolumeUI();
   });
+
+  audio.addEventListener("volumechange", syncMainVolumeUI);
+  window.addEventListener("nero-volume-sync", syncMainVolumeUI);
+
+  syncMainVolumeUI();
 }

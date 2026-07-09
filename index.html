@@ -15,11 +15,6 @@
     href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
   >
 
-  <!-- Google model-viewer -->
-  <script
-    type="module"
-    src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js">
-  </script>
 </head>
 
 <body>
@@ -59,7 +54,7 @@
   <canvas id="dust-canvas"></canvas>
 
   <!-- ===== GLOBAL AUDIO ===== -->
-  <audio id="music" preload="metadata"></audio>
+  <audio id="music" preload="metadata" crossorigin="anonymous"></audio>
   <audio id="engine-sound" preload="auto"></audio>
 
   <!-- ===== VOLUME CONTROL ===== -->
@@ -202,6 +197,26 @@
   <section id="music-page">
     <canvas id="music-bg"></canvas>
 
+    <div id="music-eye-model-wrap">
+      <model-viewer
+        id="music-eye-model"
+        data-src="assets/models/eye.glb"
+        loading="lazy"
+        reveal="manual"
+        autoplay
+        disable-zoom
+        interaction-prompt="none"
+        exposure="0.92"
+        shadow-intensity="0"
+        camera-orbit="0deg 78deg 2.9m"
+        field-of-view="30deg">
+      </model-viewer>
+    </div>
+
+    <button id="music-eye-toggle" type="button" aria-label="Toggle eye background">
+      <i class="fa-solid fa-eye"></i>
+    </button>
+
     <div class="music-top">
       <div class="music-title">Now Playing</div>
       <div class="music-name">Track Name</div>
@@ -214,6 +229,24 @@
         <button id="m-next" type="button" aria-label="Next track">⏭</button>
       </div>
 
+      <div class="music-volume">
+        <button id="m-volume-btn" type="button" aria-label="Mute or unmute music">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+
+        <input
+          id="m-volume-slider"
+          type="range"
+          min="0"
+          max="1"
+          step="0.01"
+          value="0.85"
+          aria-label="Music volume"
+        >
+
+        <span id="m-volume-percent">85%</span>
+      </div>
+
       <div class="music-progress">
         <span id="m-current">0:00</span>
 
@@ -224,6 +257,15 @@
         <span id="m-duration">0:00</span>
       </div>
     </div>
+
+    <aside class="music-playlist">
+      <div class="playlist-header">
+        <span>Playlist</span>
+        <small>Nero Drive Music</small>
+      </div>
+
+      <div id="music-playlist-list" class="music-playlist-list"></div>
+    </aside>
 
     <a
       id="music-file-btn"
