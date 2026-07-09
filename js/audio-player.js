@@ -43,15 +43,16 @@ function readNumber(value, fallback) {
   return Number.isFinite(number) ? number : fallback;
 }
 
-let globalVolume = readNumber(localStorage.getItem(VOLUME_KEY), 0.85);
-let lastVolume = readNumber(localStorage.getItem(LAST_VOLUME_KEY), globalVolume || 0.85);
-let globalMuted = localStorage.getItem(MUTED_KEY) === "1";
-
-globalVolume = clamp(globalVolume, 0, 1);
-lastVolume = clamp(lastVolume, 0.01, 1);
+let globalVolume = 0.5;
+let lastVolume = 0.5;
+let globalMuted = false;
 
 audio.volume = globalVolume;
 audio.muted = globalMuted;
+
+localStorage.setItem(VOLUME_KEY, String(globalVolume));
+localStorage.setItem(MUTED_KEY, "0");
+localStorage.setItem(LAST_VOLUME_KEY, String(lastVolume));
 
 function saveVolumeState() {
   globalMuted = audio.muted;
