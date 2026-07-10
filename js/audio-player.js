@@ -35,90 +35,128 @@ export function initAudioPlayer() {
   let audioReady = false;
 
   const VOLUME_KEY = "neroGlobalVolume";
-const MUTED_KEY = "neroGlobalMuted";
-const LAST_VOLUME_KEY = "neroLastVolume";
+  const MUTED_KEY = "neroGlobalMuted";
+  const LAST_VOLUME_KEY = "neroLastVolume";
 
-function readNumber(value, fallback) {
-  const number = Number(value);
-  return Number.isFinite(number) ? number : fallback;
-}
-
-let globalVolume = 0.5;
-let lastVolume = 0.5;
-let globalMuted = false;
-
-audio.volume = globalVolume;
-audio.muted = globalMuted;
-
-localStorage.setItem(VOLUME_KEY, String(globalVolume));
-localStorage.setItem(MUTED_KEY, "0");
-localStorage.setItem(LAST_VOLUME_KEY, String(lastVolume));
-
-function saveVolumeState() {
-  globalMuted = audio.muted;
-
-  localStorage.setItem(VOLUME_KEY, String(globalVolume));
-  localStorage.setItem(MUTED_KEY, globalMuted ? "1" : "0");
-  localStorage.setItem(LAST_VOLUME_KEY, String(lastVolume));
-}
-
-function emitVolumeSync() {
-  window.dispatchEvent(new CustomEvent("nero-volume-sync"));
-}
-
-function setVolume(value) {
-  const nextVolume = clamp(Number(value), 0, 1);
-
-  globalVolume = nextVolume;
-  audio.volume = nextVolume;
-  audio.muted = nextVolume === 0;
-
-  if (nextVolume > 0) {
-    lastVolume = nextVolume;
+  function readNumber(value, fallback) {
+    const number = Number(value);
+    return Number.isFinite(number) ? number : fallback;
   }
 
-  saveVolumeState();
-  emitVolumeSync();
-}
+  const DEFAULT_VOLUME = 0.5;
 
-function toggleMute() {
-  if (!audio.muted && audio.volume > 0) {
-    lastVolume = audio.volume;
-    audio.muted = true;
-  } else {
-    const restoreVolume = lastVolume || globalVolume || 0.85;
+  // Mỗi lần vào website: âm lượng bắt đầu ở 50% và không bị mute.
+  let globalVolume = DEFAULT_VOLUME;
+  let lastVolume = DEFAULT_VOLUME;
+  let globalMuted = false;
 
-    globalVolume = restoreVolume;
-    audio.volume = restoreVolume;
-    audio.muted = false;
+  audio.volume = DEFAULT_VOLUME;
+  audio.muted = false;
+
+  localStorage.setItem(VOLUME_KEY, String(DEFAULT_VOLUME));
+  localStorage.setItem(MUTED_KEY, "0");
+  localStorage.setItem(LAST_VOLUME_KEY, String(DEFAULT_VOLUME));
+
+  function saveVolumeState() {
+    globalVolume = audio.volume;
+    globalMuted = audio.muted;
+
+    if (!globalMuted && globalVolume > 0) {
+      lastVolume = globalVolume;
+    }
+
+    localStorage.setItem(VOLUME_KEY, String(globalVolume));
+    localStorage.setItem(MUTED_KEY, globalMuted ? "1" : "0");
+    localStorage.setItem(LAST_VOLUME_KEY, String(lastVolume));
   }
 
-  saveVolumeState();
-  emitVolumeSync();
-}
+  function emitVolumeSync() {
+    window.dispatchEvent(new CustomEvent("nero-volume-sync"));
+  }
 
-function restoreVolume() {
-  globalVolume = readNumber(localStorage.getItem(VOLUME_KEY), globalVolume || 0.85);
-  lastVolume = readNumber(localStorage.getItem(LAST_VOLUME_KEY), lastVolume || globalVolume || 0.85);
-  globalMuted = localStorage.getItem(MUTED_KEY) === "1";
+  function setVolume(value) {
+    const nextVolume = clamp(Number(value), 0, 1);
 
-  globalVolume = clamp(globalVolume, 0, 1);
-  lastVolume = clamp(lastVolume, 0.01, 1);
+    globalVolume = nextVolume;
+    audio.volume = nextVolume;
+    audio.muted = nextVolume === 0;
 
-  audio.volume = globalVolume;
-  audio.muted = globalMuted;
+    if (nextVolume > 0) {
+      lastVolume = nextVolume;
+    }
 
-  emitVolumeSync();
-}
+    saveVolumeState();
+    emitVolumeSync();
+  }
 
-function getVolumeState() {
-  return {
-    volume: audio.volume,
-    muted: audio.muted,
-    realVolume: audio.muted ? 0 : audio.volume,
-    lastVolume
-  };
-}
+  function toggleMute() {
+    if (!audio.muted && audio.volume > 0) {
+      lastVolume = audio.volume;
+      audio.muted = true;
+    } else {
+      const restoreValue = clamp(lastVolume || globalVolume || 0.5, 0.01, 1);
+
+      globalVolume = restoreValue;
+      audio.volume = restoreValue;
+      audio.muted = false;
+    }
+
+    saveVolumeState();
+    emitVolumeSync();
+  }
+
+  function restoreVolume() {
+    globalVolume = clamp(
+      readNumber(localStorage.getItem(VOLUME_KEY), globalVolume || 0.5),
+      0,
+      1
+    );
+
+    lastVolume = clamp(
+      readNumber(localStorage.getItem(LAST_VOLUME_KEY), lastVolume || globalVolume || 0.5),
+      0.01,
+      1
+    );
+
+    globalMuted = localStorage.getItem(MUTED_KEY) === "1";
+
+    audio.volume = globalVolume;
+    audio.muted = globalMuted;
+
+    emitVolumeSync();
+  }
+
+  function getVolumeState() {
+    return {
+      volume: audio.volume,
+      muted: audio.muted,
+      realVolume: audio.muted ? 0 : audio.volume,
+      lastVolume
+    };
+  }
+
+  async function startFromEntry() {
+    try {
+      // Click đầu tiên luôn mở âm thanh ở 50%.
+      setVolume(DEFAULT_VOLUME);
+
+      await audioCtx.resume();
+
+      if (!audio.src) {
+        console.warn("⚠️ Audio chưa có src để phát.");
+        return;
+      }
+
+      // Không dùng toggle ở đây vì nếu audio đã chạy thì toggle sẽ pause.
+      if (audio.paused) {
+        await audio.play();
+      }
+    } catch (err) {
+      console.warn("⚠️ Không thể phát nhạc khi vào web:", err);
+    }
+
+    syncPlayButtons();
+  }
 
   async function togglePlay() {
     try {
@@ -217,16 +255,36 @@ function getVolumeState() {
     analyser,
     dataArray,
     togglePlay,
+    startFromEntry,
     loadTrack,
     syncPlayButtons,
     setVolume,
     toggleMute,
     restoreVolume,
     getVolumeState,
-    setTracks: (newTracks) => {
+    setTracks: (newTracks, options = {}) => {
       if (!Array.isArray(newTracks) || !newTracks.length) return;
 
-      tracks = newTracks;
+      const { preserveCurrent = true } = options;
+      const currentSrc = audio.currentSrc || audio.src;
+
+      tracks = [...newTracks];
+
+      if (preserveCurrent && currentSrc) {
+        const matchedIndex = tracks.findIndex(track => {
+          try {
+            return new URL(track.src, location.href).href === currentSrc;
+          } catch {
+            return track.src === currentSrc;
+          }
+        });
+
+        // -1 nghĩa là bài hiện tại không nằm trong playlist mới.
+        // Nhạc vẫn tiếp tục; lần bấm Next sẽ bắt đầu từ bài đầu Drive.
+        currentTrack = matchedIndex;
+        return;
+      }
+
       currentTrack = 0;
       loadTrack(0, false);
     },
