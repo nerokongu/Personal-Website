@@ -277,74 +277,140 @@
     </a>
   </section>
 
-  <!-- ===== MOVIE PAGE ===== -->
-
-  <section id="movie-page">
+    <!-- ===== MOVIE PAGE ===== -->
+  <section id="movie-page" aria-hidden="true">
     <canvas id="movie-bg"></canvas>
 
+    <!-- Netflix-inspired intro, không dùng asset ngoài -->
+    <div id="movie-intro" class="movie-intro" aria-hidden="true">
+      <div class="movie-intro-vignette"></div>
+      <div class="movie-intro-scanlines"></div>
+
+      <div class="movie-intro-beams" aria-hidden="true">
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+        <i></i>
+      </div>
+
+      <div class="movie-intro-brand" aria-label="Nero Movie">
+        <div class="movie-intro-nero">
+          <span style="--letter-index: 0">N</span>
+          <span style="--letter-index: 1">E</span>
+          <span style="--letter-index: 2">R</span>
+          <span style="--letter-index: 3">O</span>
+        </div>
+
+        <div class="movie-intro-divider"></div>
+
+        <div class="movie-intro-movie">
+          <span>MOVIE</span>
+        </div>
+      </div>
+
+      <div class="movie-intro-progress" aria-hidden="true">
+        <span></span>
+      </div>
+    </div>
+
+
     <div class="movie-shell">
-      <!-- HERO -->
-      <div class="movie-hero-netflix">
-        <div class="movie-hero-info">
-          <div class="movie-kicker">Movie Collection</div>
+      <header class="movie-library-head">
+        <div class="movie-library-copy">
+          <div class="movie-kicker">NERO CINEMA LIBRARY</div>
+          <h2>Movie Collection</h2>
+          <p>Chọn một bộ phim để xem cùng nero nào!</p>
+        </div>
 
-          <h2 id="movie-hero-title">Stephen Chow Collection</h2>
-
-          <p id="movie-hero-meta">Comedy • Hong Kong • Movie Library</p>
-
-          <p id="movie-desc">
-            Chọn một phim bên dưới, nút mở phim sẽ tự đổi sang link của phim đó.
-          </p>
-
-          <div class="movie-actions">
-            <a
-              id="movie-watch-btn"
-              href="#"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="disabled">
-              <i class="fa-solid fa-play"></i>
-              <span>Add movie link</span>
-            </a>
+        <div class="movie-library-status">
+          <i class="fa-solid fa-clapperboard"></i>
+          <div>
+            <span>LIBRARY</span>
+            <strong id="movie-total-count">0 phim</strong>
           </div>
         </div>
+      </header>
 
-        <div class="movie-hero-poster">
-          <img
-            id="movie-hero-img"
-            src="assets/images/Đỗ thánh 3.jpeg"
-            alt="Movie poster">
-        </div>
-      </div>
-
-      <!-- CATEGORY TABS -->
-      <div class="movie-tabs">
+      <nav class="movie-tabs" aria-label="Movie categories">
         <button class="movie-tab active" type="button" data-category="stephen-chow">
-          Stephen Chow
+          <i class="fa-solid fa-star"></i><span>Stephen Chow</span>
         </button>
-
         <button class="movie-tab" type="button" data-category="favorite">
-          Favorite Movies
+          <i class="fa-solid fa-heart"></i><span>Favorite Movies</span>
         </button>
-
         <button class="movie-tab" type="button" data-category="websites">
-          Websites
+          <i class="fa-solid fa-globe"></i><span>Websites</span>
         </button>
-
         <button class="movie-tab" type="button" data-category="backup">
-          Backup
+          <i class="fa-solid fa-box-archive"></i><span>Backup</span>
         </button>
+      </nav>
+
+      <div class="movie-toolbar">
+        <div>
+          <span class="movie-toolbar-label">CURRENT COLLECTION</span>
+          <h3 id="movie-row-title">Châu Tinh Trì Collection</h3>
+        </div>
+
+        <label class="movie-search">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <input id="movie-search-input" type="search" placeholder="Tìm phim..." autocomplete="off" aria-label="Tìm phim">
+          <button id="movie-search-clear" type="button" aria-label="Xóa tìm kiếm">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        </label>
       </div>
 
-      <!-- POSTER ROW -->
-      <div class="movie-row-header">
-        <h3 id="movie-row-title">Châu Tinh Trì Collection</h3>
-        <span>Choose a movie</span>
-      </div>
+      <div id="movie-poster-row" class="movie-poster-grid"></div>
 
-      <div id="movie-poster-row" class="movie-poster-row"></div>
+      <div id="movie-empty-state" class="movie-empty-state" hidden>
+        <i class="fa-solid fa-film"></i>
+        <strong>Không tìm thấy phim</strong>
+        <span>Thử đổi danh mục hoặc từ khóa tìm kiếm.</span>
+      </div>
+    </div>
+
+    <div id="movie-detail-modal" class="movie-detail-modal" aria-hidden="true">
+      <button class="movie-detail-backdrop" type="button" data-close-movie-detail aria-label="Đóng thông tin phim"></button>
+
+      <article class="movie-detail-panel" role="dialog" aria-modal="true" aria-labelledby="movie-hero-title">
+        <button id="movie-detail-close" class="movie-detail-close" type="button" aria-label="Đóng">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="movie-detail-poster">
+          <img id="movie-hero-img" src="assets/images/Đỗ thánh 3.jpeg" alt="Movie poster">
+          <div class="movie-detail-poster-shade"></div>
+        </div>
+
+        <div class="movie-detail-content">
+          <div class="movie-detail-kicker">
+            <i class="fa-solid fa-film"></i><span>MOVIE DETAILS</span>
+          </div>
+
+          <h2 id="movie-hero-title">Movie title</h2>
+          <p id="movie-hero-meta" class="movie-detail-meta">Year • Genre</p>
+
+          <div class="movie-description-wrap">
+            <p id="movie-desc">Chọn một phim để xem mô tả.</p>
+            <button id="movie-desc-toggle" type="button" hidden>Xem thêm</button>
+          </div>
+
+          <div class="movie-detail-actions">
+            <a id="movie-watch-btn" href="#" target="_blank" rel="noopener noreferrer" class="disabled">
+              <i class="fa-solid fa-play"></i><span>Mở phim</span>
+            </a>
+
+            <button id="movie-detail-dismiss" type="button">
+              <i class="fa-solid fa-arrow-left"></i><span>Quay lại danh sách</span>
+            </button>
+          </div>
+        </div>
+      </article>
     </div>
   </section>
+
 
   <!-- ===== GYM PAGE ===== -->
   <section id="gym-page" aria-hidden="true">
