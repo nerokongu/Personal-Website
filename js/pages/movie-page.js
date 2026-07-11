@@ -17,6 +17,7 @@ export function initMoviePage() {
   const defaultPoster = "assets/images/Đỗ thánh 3.jpeg";
 
   let movieBgStarted = false;
+  let movieDataStarted = false;
 
   function ensureMovieBackground() {
     
@@ -110,19 +111,37 @@ export function initMoviePage() {
       card.type = "button";
       card.className = "movie-poster-card";
 
-      card.innerHTML = `
-        <div class="movie-poster-img-wrap">
-          <img src="${movie.poster}" alt="${movie.title}">
-          <div class="movie-poster-overlay">
-            <i class="fa-solid fa-play"></i>
-          </div>
-        </div>
+      const imageWrap = document.createElement("div");
+      imageWrap.className = "movie-poster-img-wrap";
 
-        <div class="movie-poster-info">
-          <strong>${movie.title}</strong>
-          <span>${movie.year}</span>
-        </div>
-      `;
+      const image = document.createElement("img");
+      image.src = getSafePosterUrl(movie.poster);
+      image.alt = movie.title || "Movie poster";
+      image.loading = "lazy";
+      image.addEventListener("error", () => {
+        image.src = defaultPoster;
+      }, { once: true });
+
+      const overlay = document.createElement("div");
+      overlay.className = "movie-poster-overlay";
+
+      const playIcon = document.createElement("i");
+      playIcon.className = "fa-solid fa-play";
+      overlay.appendChild(playIcon);
+
+      imageWrap.append(image, overlay);
+
+      const info = document.createElement("div");
+      info.className = "movie-poster-info";
+
+      const title = document.createElement("strong");
+      title.textContent = movie.title || "Untitled";
+
+      const year = document.createElement("span");
+      year.textContent = movie.year || "";
+
+      info.append(title, year);
+      card.append(imageWrap, info);
 
       card.addEventListener("click", () => {
         selectMovie(movie, card);
@@ -143,25 +162,55 @@ export function initMoviePage() {
 
     if (card) card.classList.add("active");
 
-    heroTitle.textContent = movie.title;
-    heroMeta.textContent = `${movie.year} • ${movie.genre}`;
-    heroImg.src = movie.poster;
-    heroImg.alt = movie.title;
-    movieDesc.textContent = movie.desc;
+    heroTitle.textContent = movie.title || "Untitled";
+    heroMeta.textContent = [movie.year, movie.genre].filter(Boolean).join(" • ");
+    heroImg.src = getSafePosterUrl(movie.poster);
+    heroImg.alt = movie.title || "Movie poster";
+    movieDesc.textContent = movie.desc || "Chưa có mô tả cho phim này.";
 
     updateWatchButton(movie.link);
   }
 
+  function getSafePosterUrl(value) {
+    if (!value) return defaultPoster;
+
+    try {
+      const url = new URL(value, window.location.href);
+
+      if (!["http:", "https:"].includes(url.protocol)) {
+        return defaultPoster;
+      }
+
+      return url.href;
+    } catch {
+      return defaultPoster;
+    }
+  }
+
+  function getSafeMovieUrl(value) {
+    if (!value) return "";
+
+    try {
+      const url = new URL(value, window.location.href);
+      return ["http:", "https:"].includes(url.protocol) ? url.href : "";
+    } catch {
+      return "";
+    }
+  }
+
   function updateWatchButton(link) {
     const label = movieWatchBtn.querySelector("span");
+    const safeLink = getSafeMovieUrl(link);
 
-    if (link) {
-      movieWatchBtn.href = link;
+    if (safeLink) {
+      movieWatchBtn.href = safeLink;
       movieWatchBtn.classList.remove("disabled");
+      movieWatchBtn.setAttribute("aria-disabled", "false");
       label.textContent = "Open movie";
     } else {
       movieWatchBtn.href = "#";
       movieWatchBtn.classList.add("disabled");
+      movieWatchBtn.setAttribute("aria-disabled", "true");
       label.textContent = "Add movie link";
     }
   }
@@ -226,9 +275,11 @@ export function initMoviePage() {
 
         renderCollection(activeCategory);
       }, (err) => {
+        movieDataStarted = false;
         console.error("Không đọc được movies từ Firestore:", err);
       });
     } catch (err) {
+      movieDataStarted = false;
       console.warn("⚠️ Không load được Firestore cho Movie:", err);
     }
   }

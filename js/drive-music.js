@@ -25,6 +25,8 @@ export async function loadDriveTracks() {
 
   const files = data.files || [];
 
+  console.log("🎵 Drive files:", files);
+
   return files
     .filter(file => {
       return (
@@ -42,7 +44,6 @@ export async function loadDriveTracks() {
     .map(file => {
     const src = `https://www.googleapis.com/drive/v3/files/${file.id}?alt=media&key=${DRIVE_API_KEY}`;
 
-    console.log("🎵 Drive files:", files);
     return {
         title: cleanMusicName(file.name),
         artist: "Google Drive",

@@ -8,6 +8,7 @@ const isPhone = initDevice();
 
 let bmwModelPreloadStarted = false;
 let modelViewerScriptLoading = null;
+let appModulesStarted = false;
 
 if (!isPhone) {
   const audioSystem = initAudioPlayer();
@@ -18,31 +19,30 @@ if (!isPhone) {
 
   initPreloader(
     audioSystem,
-
-    () => {
-      startSmoothLoadingQueue(audioSystem);
-    },
-
-    () => {
-      console.log("🖱️ User entered");
-    }
+    () => startAppModules(audioSystem),
+    () => console.log("🖱️ User entered")
   );
-}
-
-/* ===== HELPERS ===== */
-function wait(ms = 300) {
-  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 function waitForPaint() {
   return new Promise(resolve => {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(resolve);
-    });
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
   });
 }
 
-function runWhenIdle(task, timeout = 2500) {
+async function loadGymStage() {
+  console.log("🏋️ Stage: Gym page");
+
+  try {
+    const { initGymPage } = await import("./pages/gym-page.js");
+    initGymPage();
+    console.log("✅ Gym ready");
+  } catch (err) {
+    console.warn("⚠️ Không load được Gym page:", err);
+  }
+}
+
+function runWhenIdle(task, timeout = 1800) {
   return new Promise(resolve => {
     const run = async () => {
       try {
@@ -57,91 +57,64 @@ function runWhenIdle(task, timeout = 2500) {
     if ("requestIdleCallback" in window) {
       window.requestIdleCallback(run, { timeout });
     } else {
-      setTimeout(run, 180);
+      window.setTimeout(run, 80);
     }
   });
 }
 
 function prepareMenuButton() {
   const menuToggle = document.getElementById("menu-toggle");
-
   if (!menuToggle) return;
 
   menuToggle.classList.add("menu-loading");
   menuToggle.classList.remove("menu-ready");
 }
 
-/* ===== LOAD QUEUE ===== */
-async function startSmoothLoadingQueue(audioSystem) {
-  console.log("🚀 Start smooth loading queue");
+async function startAppModules(audioSystem) {
+  if (appModulesStarted) return;
+  appModulesStarted = true;
 
   await waitForPaint();
-  await wait(450);
 
-  await loadHomeEffectsStage(audioSystem);
+  // Các nút điều hướng được ưu tiên để người dùng không phải chờ hiệu ứng.
+  await Promise.all([
+    loadMenuStage(audioSystem),
+    loadGymStage(),
+    loadMusicStage(audioSystem),
+    loadMovieStage()
+  ]);
 
-  await wait(500);
-
-  await loadMenuStage(audioSystem);
-
-  await wait(700);
-
-  await loadBmwStage();
-
-  await wait(700);
-
-  await loadMusicStage(audioSystem);
-
-  await wait(500);
-
-  await loadMovieStage();
-
-  console.log("✅ All stages loaded smoothly");
+  // Hiệu ứng và model nặng được tải lúc trình duyệt rảnh.
+  void runWhenIdle(() => loadHomeEffectsStage(audioSystem), 1200);
+  void runWhenIdle(() => loadBmwStage(), 2600);
 }
 
-/* ===== STAGE 1: HOME EFFECTS ===== */
 async function loadHomeEffectsStage(audioSystem) {
-  console.log("✨ Stage 1: Home effects");
+  const [{ initDust }, { initGlow }] = await Promise.all([
+    import("./effects/dust.js"),
+    import("./effects/glow.js")
+  ]);
 
-  await runWhenIdle(async () => {
-    const { initDust } = await import("./effects/dust.js");
-    initDust();
-  });
-
-  await wait(260);
-
-  await runWhenIdle(async () => {
-    const { initGlow } = await import("./effects/glow.js");
-    initGlow(audioSystem);
-  });
-
+  initDust();
+  initGlow(audioSystem);
   console.log("✅ Home effects ready");
 }
 
-/* ===== STAGE 2: MENU ===== */
 async function loadMenuStage(audioSystem) {
-  console.log("📋 Stage 2: Menu logic");
-
   const menuToggle = document.getElementById("menu-toggle");
 
   try {
-    const { initMenu } = await import("./menu.js");
+    const [{ initMenu }, { initBmwEngine }] = await Promise.all([
+      import("./menu.js"),
+      import("./bmw-engine.js")
+    ]);
+
     initMenu();
-
-    await wait(220);
-
-    const { initBmwEngine } = await import("./bmw-engine.js");
     initBmwEngine(audioSystem);
-
-    if (menuToggle) {
-      menuToggle.classList.remove("menu-loading");
-      menuToggle.classList.add("menu-ready");
-    }
-
     console.log("✅ Menu ready");
   } catch (err) {
     console.warn("⚠️ Không load được menu:", err);
-
+  } finally {
     if (menuToggle) {
       menuToggle.classList.remove("menu-loading");
       menuToggle.classList.add("menu-ready");
@@ -149,45 +122,36 @@ async function loadMenuStage(audioSystem) {
   }
 }
 
-/* ===== STAGE 3: MODEL-VIEWER + BMW ===== */
 async function loadBmwStage() {
-  console.log("🚗 Stage 3: BMW model");
-
-  await runWhenIdle(async () => {
+  try {
     await startBmwMenuModelPreload();
-  }, 4000);
-
-  console.log("✅ BMW stage done");
+  } catch (err) {
+    console.warn("⚠️ BMW stage lỗi:", err);
+  }
 }
 
 function ensureModelViewerScript() {
-  if (customElements.get("model-viewer")) {
-    return Promise.resolve();
-  }
-
-  if (modelViewerScriptLoading) {
-    return modelViewerScriptLoading;
-  }
+  if (customElements.get("model-viewer")) return Promise.resolve();
+  if (modelViewerScriptLoading) return modelViewerScriptLoading;
 
   modelViewerScriptLoading = new Promise((resolve, reject) => {
-    const script = document.createElement("script");
+    const existing = document.querySelector('script[data-model-viewer-loader="true"]');
 
+    if (existing) {
+      customElements.whenDefined("model-viewer").then(resolve).catch(reject);
+      return;
+    }
+
+    const script = document.createElement("script");
     script.type = "module";
     script.src = "https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js";
+    script.dataset.modelViewerLoader = "true";
 
-    script.onload = async () => {
-      try {
-        await customElements.whenDefined("model-viewer");
-        resolve();
-      } catch (err) {
-        reject(err);
-      }
+    script.onload = () => {
+      customElements.whenDefined("model-viewer").then(resolve).catch(reject);
     };
 
-    script.onerror = () => {
-      reject(new Error("Không load được model-viewer."));
-    };
-
+    script.onerror = () => reject(new Error("Không load được model-viewer."));
     document.head.appendChild(script);
   });
 
@@ -196,100 +160,64 @@ function ensureModelViewerScript() {
 
 async function startBmwMenuModelPreload() {
   if (bmwModelPreloadStarted) return;
-
   bmwModelPreloadStarted = true;
 
   const bmw = document.getElementById("bmw-menu");
   const modelWrap = document.querySelector(".model-wrap");
 
-  if (!bmw) {
-    console.warn("⚠️ Không tìm thấy #bmw-menu");
-    return;
-  }
+  if (!bmw) return;
 
   await ensureModelViewerScript();
 
-  let finished = false;
-
-  function markReady() {
-    if (finished) return;
-
-    finished = true;
-
-    if (modelWrap) {
-      modelWrap.classList.add("model-ready");
-      modelWrap.classList.remove("model-error");
-    }
-
-    console.log("✅ BMW model loaded");
-  }
-
-  function markError(err) {
-    console.warn("⚠️ BMW model lỗi hoặc không load được:", err);
-
-    if (modelWrap) {
-      modelWrap.classList.add("model-error");
-    }
-  }
-
-  bmw.addEventListener("load", markReady, { once: true });
-  bmw.addEventListener("error", markError, { once: true });
-
-  bmw.addEventListener("model-visibility", (e) => {
-    if (e.detail.visible) {
-      markReady();
-    }
-  }, { once: true });
-
-  bmw.setAttribute("loading", "eager");
-  bmw.setAttribute("reveal", "auto");
-
-  const modelSrc =
-    bmw.getAttribute("src") ||
-    bmw.getAttribute("data-src") ||
-    "assets/models/bmw.glb";
-
-  console.log("🚗 BMW model path:", modelSrc);
-
-  if (!bmw.getAttribute("src")) {
-    bmw.setAttribute("src", modelSrc);
-  }
-
   await new Promise(resolve => {
-    bmw.addEventListener("load", resolve, { once: true });
-    bmw.addEventListener("error", resolve, { once: true });
+    let finished = false;
 
-    setTimeout(() => {
-      if (!finished && bmw.getAttribute("src")) {
-        console.warn("⚠️ BMW model event lâu, vẫn cho load tiếp.");
-        markReady();
+    const finish = (ok = true) => {
+      if (finished) return;
+      finished = true;
+
+      if (modelWrap) {
+        modelWrap.classList.toggle("model-ready", ok);
+        modelWrap.classList.toggle("model-error", !ok);
       }
 
       resolve();
-    }, 5000);
+    };
+
+    bmw.addEventListener("load", () => finish(true), { once: true });
+    bmw.addEventListener("error", () => finish(false), { once: true });
+
+    bmw.setAttribute("loading", "eager");
+    bmw.setAttribute("reveal", "auto");
+
+    const modelSrc =
+      bmw.getAttribute("src") ||
+      bmw.getAttribute("data-src") ||
+      "assets/models/bmw.glb";
+
+    if (!bmw.getAttribute("src")) bmw.setAttribute("src", modelSrc);
+
+    // Không chặn hàng đợi nếu model-viewer không phát event.
+    window.setTimeout(() => finish(true), 4500);
   });
 }
 
-/* ===== STAGE 4: MUSIC ===== */
 async function loadMusicStage(audioSystem) {
-  console.log("🎵 Stage 4: Music logic");
-
-  await runWhenIdle(async () => {
+  try {
     const { initMusicPage } = await import("./pages/music-page.js");
     initMusicPage(audioSystem);
-  }, 3000);
-
-  console.log("✅ Music logic ready");
+    console.log("✅ Music logic ready");
+  } catch (err) {
+    console.warn("⚠️ Không load được Music:", err);
+  }
 }
 
-/* ===== STAGE 5: MOVIE ===== */
 async function loadMovieStage() {
-  console.log("🎬 Stage 5: Movie logic");
-
-  await runWhenIdle(async () => {
+  try {
     const { initMoviePage } = await import("./pages/movie-page.js");
     initMoviePage();
-  }, 3000);
-
-  console.log("✅ Movie logic ready");
+    console.log("✅ Movie logic ready");
+  } catch (err) {
+    console.warn("⚠️ Không load được Movie:", err);
+  }
 }

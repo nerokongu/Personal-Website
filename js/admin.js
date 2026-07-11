@@ -45,6 +45,7 @@ const movieList = document.getElementById("admin-movie-list");
 const moviesRef = collection(db, "movies");
 
 let moviesCache = [];
+let unsubscribeMovies = null;
 
 loginBtn.addEventListener("click", async () => {
   const email = emailInput.value.trim();
@@ -67,6 +68,8 @@ loginBtn.addEventListener("click", async () => {
 });
 
 logoutBtn.addEventListener("click", async () => {
+  unsubscribeMovies?.();
+  unsubscribeMovies = null;
   await signOut(auth);
 });
 
@@ -76,6 +79,9 @@ onAuthStateChanged(auth, (user) => {
     adminPanel.classList.remove("hidden");
     listenMovies();
   } else {
+    unsubscribeMovies?.();
+    unsubscribeMovies = null;
+
     adminPanel.classList.add("hidden");
     loginBox.classList.remove("hidden");
   }
@@ -97,6 +103,16 @@ movieForm.addEventListener("submit", async (e) => {
 
   if (!movieData.title) {
     formMessage.textContent = "Tên phim không được để trống.";
+    return;
+  }
+
+  if (!isSafePosterUrl(movieData.poster)) {
+    formMessage.textContent = "Link poster không hợp lệ. Chỉ dùng đường dẫn nội bộ, http hoặc https.";
+    return;
+  }
+
+  if (movieData.link && !isSafeExternalUrl(movieData.link)) {
+    formMessage.textContent = "Link phim không hợp lệ. Chỉ chấp nhận http hoặc https.";
     return;
   }
 
@@ -124,9 +140,11 @@ movieForm.addEventListener("submit", async (e) => {
 resetFormBtn.addEventListener("click", resetForm);
 
 function listenMovies() {
+  unsubscribeMovies?.();
+
   const q = query(moviesRef, orderBy("createdAt", "desc"));
 
-  onSnapshot(q, (snapshot) => {
+  unsubscribeMovies = onSnapshot(q, (snapshot) => {
     moviesCache = snapshot.docs.map(item => ({
       id: item.id,
       ...item.data()
@@ -210,6 +228,28 @@ function resetForm() {
   movieForm.reset();
   categoryInput.value = "stephen-chow";
   posterInput.value = "assets/images/Đỗ thánh 3.jpeg";
+}
+
+function isSafePosterUrl(value) {
+  if (!value) return true;
+
+  try {
+    const url = new URL(value, window.location.href);
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
+}
+
+function isSafeExternalUrl(value) {
+  if (!value) return true;
+
+  try {
+    const url = new URL(value);
+    return ["http:", "https:"].includes(url.protocol);
+  } catch {
+    return false;
+  }
 }
 
 function escapeHtml(value) {

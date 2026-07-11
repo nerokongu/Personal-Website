@@ -67,7 +67,7 @@ export function initMusicPage(audioSystem) {
         return;
       }
 
-      audioSystem.setTracks(driveTracks);
+      audioSystem.setTracks(driveTracks, { preserveCurrent: true });
 
       playlistLoaded = true;
 
@@ -279,15 +279,16 @@ export function initMusicPage(audioSystem) {
 
     await enterMusicPageEffect();
 
-    await ensureDrivePlaylist();
-    ensureMusicBackground();
-
+    // Hiện trang ngay; playlist Drive tải nền để không làm nút Music bị đứng.
     moviePage.classList.remove("active");
     musicPage.classList.add("active");
     backBtn.classList.add("active");
 
     document.body.classList.add("sub-page-open", "music-open");
     document.body.classList.remove("movie-open");
+
+    ensureMusicBackground();
+    void ensureDrivePlaylist();
 
     syncMusicUI();
 
