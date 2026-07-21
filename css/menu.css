@@ -298,7 +298,10 @@
 }
 
 .model-wrap.model-ready::before {
+  content: none;
+  display: none;
   opacity: 0;
+  animation: none;
 }
 
 #bmw-menu {
@@ -331,3 +334,31 @@
     opacity: 0.75;
   }
 }
+
+/* ===== PERFORMANCE: pause hidden menu effects ===== */
+#curtain-menu:not(.open) * {
+  animation-play-state: paused !important;
+}
+
+.menu-right .menu-items button.is-loading {
+  opacity: 0.56;
+  pointer-events: none;
+}
+
+.menu-right .menu-items button.is-loading::after {
+  content: "";
+  position: static;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255,255,255,0.24);
+  border-top-color: #fff;
+  border-radius: 50%;
+  opacity: 1;
+  transform: none;
+  animation: neroModuleSpin 0.7s linear infinite;
+}
+
+@keyframes neroModuleSpin {
+  to { transform: rotate(360deg); }
+}
+

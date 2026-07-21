@@ -1,97 +1,151 @@
 export function initMovieBackground() {
-    // ===== MOVIE BACKGROUND ANIMATION =====
-  const movieCanvas = document.getElementById("movie-bg");
-  const movieCtx = movieCanvas.getContext("2d");
+  const canvas = document.getElementById("movie-bg");
+  const ctx = canvas?.getContext("2d");
 
-  let movieW, movieH;
-  let movieParticles = [];
+  if (!canvas || !ctx) return;
 
-  function resizeMovieBG() {
-    movieW = movieCanvas.width = window.innerWidth;
-    movieH = movieCanvas.height = window.innerHeight;
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+  let particles = [];
+  let rafId = 0;
+  let running = false;
+  let lastFrame = 0;
 
-    movieParticles = Array.from({ length: 70 }, () => ({
-      x: Math.random() * movieW,
-      y: Math.random() * movieH,
-      size: Math.random() * 2 + 0.6,
-      speed: Math.random() * 0.5 + 0.15,
-      alpha: Math.random() * 0.45 + 0.12
+  const FRAME_INTERVAL = 34;
+
+  function shouldRun() {
+    return (
+      !document.hidden &&
+      document.body.classList.contains("movie-open")
+    );
+  }
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const count = Math.min(70, Math.max(36, Math.floor(width / 24)));
+
+    particles = Array.from({ length: count }, () => ({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      size: Math.random() * 1.8 + 0.5,
+      speed: Math.random() * 0.45 + 0.12,
+      alpha: Math.random() * 0.38 + 0.1
     }));
   }
 
-  resizeMovieBG();
-  window.addEventListener("resize", resizeMovieBG);
+  function render(time) {
+    ctx.clearRect(0, 0, width, height);
 
-  function drawMovieBackground() {
-    if (!document.body.classList.contains("movie-open")) {
-      requestAnimationFrame(drawMovieBackground);
-      return;
-    }
-
-    movieCtx.clearRect(0, 0, movieW, movieH);
-
-    const time = performance.now() * 0.001;
-
-    const gradient = movieCtx.createRadialGradient(
-      movieW * 0.5,
-      movieH * 0.25,
+    const gradient = ctx.createRadialGradient(
+      width * 0.5,
+      height * 0.25,
       40,
-      movieW * 0.5,
-      movieH * 0.45,
-      movieW * 0.8
+      width * 0.5,
+      height * 0.45,
+      width * 0.8
     );
 
     gradient.addColorStop(0, "rgba(120,20,20,0.28)");
     gradient.addColorStop(0.45, "rgba(20,20,25,0.88)");
     gradient.addColorStop(1, "rgba(0,0,0,1)");
 
-    movieCtx.fillStyle = gradient;
-    movieCtx.fillRect(0, 0, movieW, movieH);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
 
-    for (let i = 0; i < 4; i++) {
-      const y = ((time * 35 + i * movieH / 4) % movieH);
-      movieCtx.fillStyle = "rgba(255,255,255,0.035)";
-      movieCtx.fillRect(0, y, movieW, 1.5);
+    for (let index = 0; index < 4; index++) {
+      const y = (time * 35 + index * height / 4) % height;
+      ctx.fillStyle = "rgba(255,255,255,0.035)";
+      ctx.fillRect(0, y, width, 1.5);
     }
 
-    movieCtx.fillStyle = "rgba(255,255,255,0.045)";
-    for (let y = -40; y < movieH + 40; y += 52) {
+    ctx.fillStyle = "rgba(255,255,255,0.045)";
+    for (let y = -40; y < height + 40; y += 52) {
       const offset = (time * 22) % 52;
-      movieCtx.fillRect(34, y + offset, 14, 24);
-      movieCtx.fillRect(movieW - 48, y + offset, 14, 24);
+      ctx.fillRect(34, y + offset, 14, 24);
+      ctx.fillRect(width - 48, y + offset, 14, 24);
     }
 
-    movieParticles.forEach(p => {
-      p.y -= p.speed;
+    particles.forEach(particle => {
+      particle.y -= particle.speed;
 
-      if (p.y < -10) {
-        p.y = movieH + 10;
-        p.x = Math.random() * movieW;
+      if (particle.y < -10) {
+        particle.y = height + 10;
+        particle.x = Math.random() * width;
       }
 
-      movieCtx.fillStyle = `rgba(255,255,255,${p.alpha})`;
-      movieCtx.beginPath();
-      movieCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-      movieCtx.fill();
+      ctx.fillStyle = `rgba(255,255,255,${particle.alpha})`;
+      ctx.beginPath();
+      ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+      ctx.fill();
     });
 
     const pulse = 0.5 + Math.sin(time * 2) * 0.5;
 
-    movieCtx.fillStyle = `rgba(255,50,50,${0.035 + pulse * 0.035})`;
-    movieCtx.beginPath();
-    movieCtx.ellipse(
-      movieW / 2,
-      movieH * 0.55,
+    ctx.fillStyle = `rgba(255,50,50,${0.035 + pulse * 0.035})`;
+    ctx.beginPath();
+    ctx.ellipse(
+      width / 2,
+      height * 0.55,
       280 + pulse * 60,
       90,
       0,
       0,
       Math.PI * 2
     );
-    movieCtx.fill();
-
-    requestAnimationFrame(drawMovieBackground);
+    ctx.fill();
   }
 
-  drawMovieBackground();
+  function loop(timestamp) {
+    if (!shouldRun()) {
+      stop();
+      return;
+    }
+
+    rafId = requestAnimationFrame(loop);
+
+    if (timestamp - lastFrame < FRAME_INTERVAL) return;
+    lastFrame = timestamp;
+    render(timestamp * 0.001);
+  }
+
+  function start() {
+    if (running || !shouldRun()) return;
+    running = true;
+    lastFrame = 0;
+    rafId = requestAnimationFrame(loop);
+  }
+
+  function stop() {
+    if (!running) return;
+    running = false;
+    cancelAnimationFrame(rafId);
+    rafId = 0;
+  }
+
+  function syncState() {
+    if (shouldRun()) start();
+    else stop();
+  }
+
+  resize();
+  window.addEventListener("resize", resize, { passive: true });
+  document.addEventListener("visibilitychange", syncState);
+
+  const bodyObserver = new MutationObserver(syncState);
+  bodyObserver.observe(document.body, {
+    attributes: true,
+    attributeFilter: ["class"]
+  });
+
+  syncState();
 }

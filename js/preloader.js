@@ -83,6 +83,7 @@ export function initPreloader(audioSystem, onEnterReady, onUserEnter) {
 
     entered = true;
     overlay.classList.add("hidden");
+    document.body.classList.add("site-entered");
 
     if (typeof onUserEnter === "function") {
       onUserEnter();

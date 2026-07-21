@@ -51,6 +51,8 @@ export function initGymPage() {
   let currentResult = null;
 
   const STORAGE_KEY = "neroGymProfile";
+  const PROFILE_COOKIE_KEY = "neroGymProfile";
+  const PROFILE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365;
 
   function clampNumber(value, fallback, min, max) {
     const number = Number(value);
@@ -58,27 +60,85 @@ export function initGymPage() {
     return Math.min(Math.max(number, min), max);
   }
 
-  function saveProfile() {
+  function collectProfile() {
     const profile = {};
 
     Object.entries(inputs).forEach(([key, input]) => {
       profile[key] = input.value;
     });
 
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(profile));
+    return profile;
+  }
+
+  function writeProfileCookie(profile) {
+    const secure = location.protocol === "https:" ? "; Secure" : "";
+    const value = encodeURIComponent(JSON.stringify(profile));
+
+    document.cookie =
+      `${PROFILE_COOKIE_KEY}=${value}; ` +
+      `Max-Age=${PROFILE_COOKIE_MAX_AGE}; Path=/; SameSite=Lax${secure}`;
+  }
+
+  function readProfileCookie() {
+    const prefix = `${PROFILE_COOKIE_KEY}=`;
+    const cookie = document.cookie
+      .split(";")
+      .map(item => item.trim())
+      .find(item => item.startsWith(prefix));
+
+    if (!cookie) return null;
+
+    try {
+      return JSON.parse(decodeURIComponent(cookie.slice(prefix.length)));
+    } catch (error) {
+      console.warn("⚠️ Cookie Gym không hợp lệ:", error);
+      return null;
+    }
+  }
+
+  function saveProfile() {
+    const profile = collectProfile();
+    const serialized = JSON.stringify(profile);
+
+    try {
+      localStorage.setItem(STORAGE_KEY, serialized);
+    } catch (error) {
+      console.warn("⚠️ Không lưu được Gym profile vào localStorage:", error);
+    }
+
+    // Cookie là bản dự phòng để dữ liệu cũ vẫn được giữ lại.
+    writeProfileCookie(profile);
   }
 
   function restoreProfile() {
-    try {
-      const profile = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
-      if (!profile) return;
+    let profile = null;
 
-      Object.entries(inputs).forEach(([key, input]) => {
-        if (profile[key] != null) input.value = profile[key];
-      });
+    try {
+      profile = JSON.parse(localStorage.getItem(STORAGE_KEY) || "null");
     } catch (error) {
-      console.warn("⚠️ Không đọc được Gym profile:", error);
+      console.warn("⚠️ Không đọc được Gym profile từ localStorage:", error);
     }
+
+    // Khi localStorage trống hoặc lỗi, khôi phục từ cookie.
+    if (!profile) {
+      profile = readProfileCookie();
+    }
+
+    if (!profile || typeof profile !== "object") return;
+
+    Object.entries(inputs).forEach(([key, input]) => {
+      if (profile[key] != null) input.value = profile[key];
+    });
+
+    // Đồng bộ lại cả hai nơi mà không thay đổi dữ liệu đã lưu.
+    saveProfile();
+  }
+
+  function initProfilePersistence() {
+    Object.values(inputs).forEach(input => {
+      input.addEventListener("input", saveProfile);
+      input.addEventListener("change", saveProfile);
+    });
   }
 
   function finishIntro() {
@@ -731,6 +791,7 @@ export function initGymPage() {
   });
 
   restoreProfile();
+  initProfilePersistence();
   initCustomSelects();
   initNumberSteppers();
   switchTab("workout");

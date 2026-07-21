@@ -206,10 +206,17 @@ export function initAudioPlayer() {
   }
 
   function syncPlayButtons() {
-    if (audio.paused) {
-      playBtn.classList.remove("pause");
-    } else {
-      playBtn.classList.add("pause");
+    const isPaused = audio.paused;
+    const icon = playBtn.querySelector("i");
+
+    playBtn.classList.toggle("pause", !isPaused);
+    playBtn.setAttribute("aria-label", isPaused ? "Play" : "Pause");
+    playBtn.title = isPaused ? "Phát nhạc" : "Tạm dừng";
+
+    if (icon) {
+      icon.className = isPaused
+        ? "fa-solid fa-play"
+        : "fa-solid fa-pause";
     }
   }
 

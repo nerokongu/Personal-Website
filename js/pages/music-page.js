@@ -1,5 +1,6 @@
 import { formatTime } from "../utils.js";
 import { loadDriveTracks } from "../drive-music.js";
+import { ensureModelViewer } from "../model-viewer-loader.js";
 
 export function initMusicPage(audioSystem) {
   const { audio, togglePlay, loadTrack, syncPlayButtons } = audioSystem;
@@ -7,6 +8,7 @@ export function initMusicPage(audioSystem) {
   const openMusicBtn = document.getElementById("open-music");
   const musicPage = document.getElementById("music-page");
   const moviePage = document.getElementById("movie-page");
+  const gymPage = document.getElementById("gym-page");
   const backBtn = document.getElementById("music-back-global");
 
   const mPlay = document.getElementById("m-play");
@@ -153,27 +155,31 @@ export function initMusicPage(audioSystem) {
       .replaceAll("'", "&#039;");
   }
 
-  function ensureMusicBackground() {
+  async function ensureMusicBackground() {
     if (musicBgStarted) return;
 
     musicBgStarted = true;
 
-    const eyeModel = document.getElementById("music-eye-model");
+    try {
+      await ensureModelViewer();
 
-    if (eyeModel && !eyeModel.getAttribute("src")) {
-      const eyeSrc = eyeModel.getAttribute("data-src") || "assets/models/eye.glb";
-      eyeModel.setAttribute("src", eyeSrc);
-      eyeModel.setAttribute("reveal", "auto");
+      const eyeModel = document.getElementById("music-eye-model");
+
+      if (eyeModel && !eyeModel.getAttribute("src")) {
+        const eyeSrc =
+          eyeModel.getAttribute("data-src") || "assets/models/eye.glb";
+
+        eyeModel.setAttribute("src", eyeSrc);
+        eyeModel.setAttribute("reveal", "auto");
+      }
+
+      const { initMusicBackground } = await import("../effects/music-bg.js");
+      initMusicBackground(audioSystem);
+      console.log("✅ Music background started");
+    } catch (error) {
+      musicBgStarted = false;
+      console.warn("⚠️ Không load được Music background:", error);
     }
-
-    import("../effects/music-bg.js")
-      .then(({ initMusicBackground }) => {
-        initMusicBackground(audioSystem);
-        console.log("✅ Music background started");
-      })
-      .catch((err) => {
-        console.warn("⚠️ Không load được Music background:", err);
-      });
   }
 
   async function enterMusicPageEffect() {
@@ -218,6 +224,14 @@ export function initMusicPage(audioSystem) {
   function initMusicVolume() {
     if (!mVolumeSlider || !mVolumeBtn) return;
 
+    function closeMusicVolumeBox() {
+      if (!musicVolumeBox) return;
+
+      clearTimeout(musicVolumeTimer);
+      musicVolumeTimer = null;
+      musicVolumeBox.classList.remove("volume-open");
+    }
+
     function openMusicVolumeBox() {
       if (!musicVolumeBox) return;
 
@@ -225,9 +239,7 @@ export function initMusicPage(audioSystem) {
 
       clearTimeout(musicVolumeTimer);
 
-      musicVolumeTimer = setTimeout(() => {
-        musicVolumeBox.classList.remove("volume-open");
-      }, 3000);
+      musicVolumeTimer = setTimeout(closeMusicVolumeBox, 3000);
     }
 
     if (musicVolumeBox) {
@@ -254,7 +266,10 @@ export function initMusicPage(audioSystem) {
       syncMusicVolumeUI();
     });
 
-    mVolumeBtn.addEventListener("click", () => {
+    mVolumeBtn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openMusicVolumeBox();
+
       if (typeof audioSystem.toggleMute === "function") {
         audioSystem.toggleMute();
       } else {
@@ -262,6 +277,18 @@ export function initMusicPage(audioSystem) {
       }
 
       syncMusicVolumeUI();
+    });
+
+    // Khi volume đang mở, bấm ở bất kỳ nơi nào bên ngoài sẽ đóng ngay.
+    document.addEventListener("pointerdown", (event) => {
+      if (!musicVolumeBox?.classList.contains("volume-open")) return;
+      if (musicVolumeBox.contains(event.target)) return;
+
+      closeMusicVolumeBox();
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeMusicVolumeBox();
     });
 
     audio.addEventListener("volumechange", syncMusicVolumeUI);
@@ -280,14 +307,15 @@ export function initMusicPage(audioSystem) {
     await enterMusicPageEffect();
 
     // Hiện trang ngay; playlist Drive tải nền để không làm nút Music bị đứng.
-    moviePage.classList.remove("active");
+    moviePage?.classList.remove("active");
+    gymPage?.classList.remove("active");
     musicPage.classList.add("active");
     backBtn.classList.add("active");
 
     document.body.classList.add("sub-page-open", "music-open");
-    document.body.classList.remove("movie-open");
+    document.body.classList.remove("movie-open", "gym-open");
 
-    ensureMusicBackground();
+    void ensureMusicBackground();
     void ensureDrivePlaylist();
 
     syncMusicUI();
@@ -299,18 +327,14 @@ export function initMusicPage(audioSystem) {
   });
   
   backBtn.addEventListener("click", () => {
+    if (!document.body.classList.contains("music-open")) return;
+
     musicPage.classList.remove("active");
-
-    if (moviePage) {
-      moviePage.classList.remove("active");
-    }
-
     backBtn.classList.remove("active");
 
     document.body.classList.remove(
       "sub-page-open",
       "music-open",
-      "movie-open",
       "music-entering"
     );
 

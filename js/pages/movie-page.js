@@ -169,9 +169,44 @@ export function initMoviePage() {
     backBtn?.classList.add("active");
 
     document.body.classList.add("sub-page-open", "movie-open");
-    document.body.classList.remove("music-open", "gym-open");
+    document.body.classList.remove(
+      "music-open",
+      "gym-open",
+      "music-entering"
+    );
 
     moviePage.scrollTop = 0;
+  }
+
+  function closeMoviePage() {
+    if (!document.body.classList.contains("movie-open")) return;
+
+    clearMovieIntroTimers();
+    closeMovieDetail();
+
+    moviePage.classList.remove(
+      "active",
+      "movie-intro-running",
+      "movie-intro-leaving",
+      "movie-intro-ready"
+    );
+
+    moviePage.setAttribute("aria-hidden", "true");
+    movieIntro?.setAttribute("aria-hidden", "true");
+    backBtn?.classList.remove("active");
+
+    document.body.classList.remove(
+      "sub-page-open",
+      "movie-open",
+      "movie-detail-open"
+    );
+
+    if (unsubscribeMovies) {
+      unsubscribeMovies();
+      unsubscribeMovies = null;
+    }
+
+    movieDataStarted = false;
   }
 
   function closeMovieDetail() {
@@ -447,19 +482,7 @@ export function initMoviePage() {
     finishMovieIntro(true);
   });
 
-  backBtn?.addEventListener("click", () => {
-    if (!document.body.classList.contains("movie-open")) return;
-
-    clearMovieIntroTimers();
-
-    moviePage.classList.remove(
-      "movie-intro-running",
-      "movie-intro-leaving",
-      "movie-intro-ready"
-    );
-
-    movieIntro?.setAttribute("aria-hidden", "true");
-  });
+  backBtn?.addEventListener("click", closeMoviePage);
 
   movieTabs.forEach(tab => {
     tab.addEventListener("click", () => {
